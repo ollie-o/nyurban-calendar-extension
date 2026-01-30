@@ -1,122 +1,95 @@
+import { Result, ok, err } from 'neverthrow';
 import { Game } from '../lib/types';
 import { CONFIG, SELECTORS } from '../lib/constants';
 
 /**
  * Parses the NY Urban schedule page and extracts game information
  * @param doc - The HTML document to parse
- * @returns Array of Game objects
- * @throws Error if document is invalid
+ * @returns Result containing array of Game objects or Error
  */
-export const parseSchedule = (doc: Document): Game[] => {
+export const parseSchedule = (doc: Document): Result<Game[], Error> => {
   if (!doc || !doc.querySelector) {
-    throw new Error('Invalid document provided to parseSchedule');
+    return err(new Error('Invalid document provided to parseSchedule'));
   }
-  const games: Game[] = [];
 
   // Extract team name.
-  const teamName = extractTeamName(doc);
-
-  // Find the schedule table (table with "Date | Location | Time | Opponent | Results" header).
-  const scheduleTable = findScheduleTable(doc);
-  if (!scheduleTable) {
-    return games;
+  const teamNameResult = extractTeamName(doc);
+  if (teamNameResult.isErr()) {
+    return err(teamNameResult.error);
   }
 
-  // Get all rows.
-  const rows = Array.from(scheduleTable.querySelectorAll('tbody tr'));
+  const teamName = teamNameResult.value;
 
-  // Filter to game rows (rows with 5+ cells, excluding header).
-  const gameRows = rows.filter((row) => {
-    const cells = row.querySelectorAll('td');
-    return cells.length >= 5;
+  // Find schedule table.
+  const tables = Array.from(doc.querySelectorAll(SELECTORS.SCHEDULE_TABLE));
+  const scheduleTable = tables.find((table) => {
+    const rows = table.querySelectorAll('tbody tr');
+    return rows.length > CONFIG.SCHEDULE_MIN_ROWS;
   });
 
-  // Skip first row (header).
-  let gameNumber = 1;
-  for (let i = 1; i < gameRows.length; i++) {
-    const row = gameRows[i];
-    const game = parseGameRow(row, teamName, gameNumber);
+  if (!scheduleTable) {
+    return ok([]);
+  }
 
-    if (game && isValidGame(game)) {
-      games.push(game);
+  // Parse each game row, skipping the first row (header).
+  const allRows = Array.from(scheduleTable.querySelectorAll('tbody tr'));
+  const rows = allRows.slice(1); // Skip header row
+  const games: Game[] = [];
+  let gameNumber = 1;
+
+  for (const row of rows) {
+    const gameDataResult = parseGameRow(row, teamName, gameNumber);
+    
+    // If parsing failed with an error (not just null/empty), return the error.
+    if (gameDataResult.isErr()) {
+      return err(gameDataResult.error);
+    }
+
+    const gameData = gameDataResult.value;
+    if (gameData && isValidGame(gameData)) {
+      games.push(gameData);
       gameNumber++;
     }
   }
 
-  return games;
-};
-
-/**
- * Finds the schedule table in the document
- * The schedule is split into two tables: a header table and a data table
- */
-const findScheduleTable = (doc: Document): HTMLTableElement | null => {
-  const tables = Array.from(doc.querySelectorAll('table'));
-
-  // Find table with header row containing "Date", "Location", "Time", "Opponent".
-  for (let i = 0; i < tables.length; i++) {
-    const table = tables[i];
-    const firstRow = table.querySelector('tbody tr');
-    if (!firstRow) {
-      continue;
-    }
-
-    const cells = Array.from(firstRow.querySelectorAll('td'));
-    if (cells.length < 4) {
-      continue;
-    }
-
-    const headerText = cells.map((c) => c.textContent?.trim().toLowerCase()).join(' ');
-    if (
-      headerText.includes('date') &&
-      headerText.includes('location') &&
-      headerText.includes('time') &&
-      headerText.includes('opponent')
-    ) {
-      // The actual game data is usually in the NEXT table.
-      if (i + 1 < tables.length) {
-        const dataTable = tables[i + 1];
-        const dataRows = dataTable.querySelectorAll('tbody tr');
-
-        if (dataRows.length > 1) {
-          return dataTable as HTMLTableElement;
-        }
-      }
-
-      // Fall back to header table if next table doesn't have data.
-      return table as HTMLTableElement;
-    }
-  }
-
-  return null;
+  return ok(games);
 };
 
 /**
  * Parses a single game row
  */
-const parseGameRow = (row: Element, teamName: string, gameNumber: number): Partial<Game> | null => {
+const parseGameRow = (
+  row: Element,
+  teamName: string,
+  gameNumber: number
+): Result<Partial<Game> | null, Error> => {
   const cells = Array.from(row.querySelectorAll('td'));
 
   if (cells.length < 5) {
-    return null;
+    return ok(null);
   }
 
   // Extract date (cell 0) - format: "Wed 01/14" or "Thu 01/29".
   const dateText = cells[0]?.textContent?.trim() || '';
   if (dateText.includes('No Game')) {
-    return null; // Skip "No Game This Week" rows.
+    return ok(null); // Skip "No Game This Week" rows.
   }
 
   // Extract time (cell 3).
   const timeText = cells[3]?.textContent?.trim() || '';
   if (!timeText) {
-    return null;
+    return ok(null);
   }
 
   // Parse date and time.
-  const date = parseDateAndTime(dateText, timeText);
+  const dateResult = parseDateAndTime(dateText, timeText);
+  if (dateResult.isErr()) {
+    return err(dateResult.error);
+  }
+
+  const date = dateResult.value;
   if (!date) {
-    return null;
+    return ok(null);
   }
 
   // Extract location from cell 2 (has full location name and address).
@@ -137,10 +110,10 @@ const parseGameRow = (row: Element, teamName: string, gameNumber: number): Parti
   const opponent = cell4Text.split(/[\t\n]{3,}|\s{10,}/)[0]?.trim() || '';
 
   if (!opponent || opponent.includes('No Game')) {
-    return null;
+    return ok(null);
   }
 
-  return {
+  return ok({
     gameNumber,
     teamName,
     opponent,
@@ -148,27 +121,27 @@ const parseGameRow = (row: Element, teamName: string, gameNumber: number): Parti
     location,
     locationDetails,
     duration: CONFIG.DEFAULT_GAME_DURATION_MINUTES,
-  };
+  });
 };
 
 /**
  * Parses date and time from NY Urban format into ISO8601 datetime string.
  * Date format: "Wed 01/14" (month/day, current year assumed)
  * Time format: "6:30" or "9:15" (24-hour or AM/PM)
- * @returns ISO8601 datetime string with Eastern timezone (e.g., "2026-01-13T18:30:00-05:00")
+ * @returns Result containing ISO8601 datetime string or Error
  */
-const parseDateAndTime = (dateText: string, timeText: string): string => {
+const parseDateAndTime = (dateText: string, timeText: string): Result<string, Error> => {
   // Extract month and day from "Wed 01/14".
   const dateMatch = dateText.match(/(\d{1,2})\/(\d{1,2})/);
   if (!dateMatch) {
-    return '';
+    return ok('');
   }
 
   const month = parseInt(dateMatch[1]);
   const day = parseInt(dateMatch[2]);
 
   if (month < 1 || month > 12 || day < 1 || day > 31) {
-    throw new Error(`Invalid date values: month=${month}, day=${day}`);
+    return err(new Error(`Invalid date values: month=${month}, day=${day}`));
   }
 
   // Determine the correct year (current or next year).
@@ -181,14 +154,14 @@ const parseDateAndTime = (dateText: string, timeText: string): string => {
   if (!time.match(/am|pm/i)) {
     const timeParts = time.split(':');
     if (timeParts.length !== 2) {
-      return ''; // Invalid time format.
+      return ok(''); // Invalid time format.
     }
 
     const hours = parseInt(timeParts[0]);
     const minutes = parseInt(timeParts[1]);
 
     if (isNaN(hours) || isNaN(minutes)) {
-      return ''; // Invalid numbers.
+      return ok(''); // Invalid numbers.
     }
 
     if (hours < 12 && hours >= 6) {
@@ -223,7 +196,7 @@ const parseDateAndTime = (dateText: string, timeText: string): string => {
   // Combine into ISO8601 format with timezone.
   const monthStr = month.toString().padStart(2, '0');
   const dayStr = day.toString().padStart(2, '0');
-  return `${year}-${monthStr}-${dayStr}T${time}:00${tzOffset}`;
+  return ok(`${year}-${monthStr}-${dayStr}T${time}:00${tzOffset}`);
 };
 
 /**
@@ -282,22 +255,22 @@ export const getEasternOffset = (
 /**
  * Extracts the team name from the page
  * @param doc - The HTML document
- * @returns The team name
+ * @returns Result containing the team name or Error
  */
-export const extractTeamName = (doc: Document): string => {
+export const extractTeamName = (doc: Document): Result<string, Error> => {
   // Look for the team name in the green_block team div.
   const teamHeader = doc.querySelector(SELECTORS.TEAM_NAME);
 
   if (teamHeader) {
     const teamName = teamHeader.textContent?.trim() || '';
     if (!teamName) {
-      throw new Error('Team name element found but contains no text');
+      return err(new Error('Team name element found but contains no text'));
     }
     // Remove any prefixes like "***zwl-" that might appear.
-    return teamName.replace(/^\*+[a-z]+-/i, '').trim();
+    return ok(teamName.replace(/^\*+[a-z]+-/i, '').trim());
   }
 
-  throw new Error('Team name not found on page');
+  return err(new Error('Team name not found on page'));
 };
 
 /**

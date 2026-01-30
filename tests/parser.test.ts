@@ -38,14 +38,24 @@ const loadHTMLFixture = (filename: string): Document => {
 };
 
 describe('Error Handling', () => {
-  it('should throw error when team name not found', () => {
+  it('should return error when team name not found', () => {
     const emptyDoc = new JSDOM('<html><body></body></html>').window.document;
-    expect(() => extractTeamName(emptyDoc)).toThrow('Team name not found on page');
+    const result = extractTeamName(emptyDoc);
+
+    expect(result.isErr()).toBe(true);
+    if (result.isErr()) {
+      expect(result.error.message).toBe('Team name not found on page');
+    }
   });
 
-  it('should throw error for invalid document', () => {
+  it('should return error for invalid document', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    expect(() => parseSchedule(null as any)).toThrow('Invalid document provided to parseSchedule');
+    const result = parseSchedule(null as any);
+
+    expect(result.isErr()).toBe(true);
+    if (result.isErr()) {
+      expect(result.error.message).toBe('Invalid document provided to parseSchedule');
+    }
   });
 });
 
@@ -311,7 +321,15 @@ describe('Parser', () => {
   testCases.forEach(({ name, fixture, expectedTeamName, expectedGameCount, expectedGames }) => {
     it(name, () => {
       const doc = loadHTMLFixture(fixture);
-      const games = parseSchedule(doc);
+      const result = parseSchedule(doc);
+
+      // Check that parsing succeeds.
+      expect(result.isOk()).toBe(true);
+      if (!result.isOk()) {
+        return;
+      }
+
+      const games = result.value;
 
       // Assert team name.
       expect(games).toBeInstanceOf(Array);

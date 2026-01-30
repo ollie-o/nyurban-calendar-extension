@@ -1,4 +1,4 @@
-import { generateICS, ICSGenerationError } from '../src/lib/ics-generator';
+import { generateICS } from '../src/lib/ics-generator';
 import { Game } from '../src/lib/types';
 
 describe('ICS Generator', () => {
@@ -13,13 +13,17 @@ describe('ICS Generator', () => {
   };
 
   it('should generate ICS with single game', () => {
-    const ics = generateICS([mockGame]);
+    const result = generateICS([mockGame]);
 
-    expect(ics).toBeTruthy();
-    expect(ics).toContain('BEGIN:VCALENDAR');
-    expect(ics).toContain('END:VCALENDAR');
-    expect(ics).toContain('BEGIN:VEVENT');
-    expect(ics).toContain('Test Team game 1 vs. Opponent');
+    expect(result.isOk()).toBe(true);
+    if (result.isOk()) {
+      const ics = result.value;
+      expect(ics).toBeTruthy();
+      expect(ics).toContain('BEGIN:VCALENDAR');
+      expect(ics).toContain('END:VCALENDAR');
+      expect(ics).toContain('BEGIN:VEVENT');
+      expect(ics).toContain('Test Team game 1 vs. Opponent');
+    }
   });
 
   it('should generate ICS with multiple games', () => {
@@ -27,20 +31,28 @@ describe('ICS Generator', () => {
       mockGame,
       { ...mockGame, gameNumber: 2, opponent: 'Team 2', date: '2026-02-22T19:00:00-05:00' },
     ];
-    const ics = generateICS(games);
+    const result = generateICS(games);
 
-    expect(ics).toBeTruthy();
-    expect(ics).toContain('BEGIN:VCALENDAR');
-    expect(ics).toContain('END:VCALENDAR');
+    expect(result.isOk()).toBe(true);
+    if (result.isOk()) {
+      const ics = result.value;
+      expect(ics).toBeTruthy();
+      expect(ics).toContain('BEGIN:VCALENDAR');
+      expect(ics).toContain('END:VCALENDAR');
 
-    const eventCount = (ics.match(/BEGIN:VEVENT/g) || []).length;
-    expect(eventCount).toBe(2);
-    expect(ics).toContain('Test Team game 1 vs. Opponent');
-    expect(ics).toContain('Test Team game 2 vs. Team 2');
+      const eventCount = (ics.match(/BEGIN:VEVENT/g) || []).length;
+      expect(eventCount).toBe(2);
+      expect(ics).toContain('Test Team game 1 vs. Opponent');
+      expect(ics).toContain('Test Team game 2 vs. Team 2');
+    }
   });
 
-  it('should throw error for empty games array', () => {
-    expect(() => generateICS([])).toThrow(ICSGenerationError);
-    expect(() => generateICS([])).toThrow('Cannot generate ICS file: no games provided');
+  it('should return error for empty games array', () => {
+    const result = generateICS([]);
+
+    expect(result.isErr()).toBe(true);
+    if (result.isErr()) {
+      expect(result.error.message).toBe('Cannot generate ICS file: no games provided');
+    }
   });
 });

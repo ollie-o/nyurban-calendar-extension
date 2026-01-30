@@ -1,6 +1,7 @@
+import { Result, ok, err } from 'neverthrow';
 import { parseSchedule } from './parser';
 import { injectGamesList } from './ui';
-import { generateICS, downloadICS, ICSGenerationError } from '../lib/ics-generator';
+import { generateICS, downloadICS } from '../lib/ics-generator';
 import { CONFIG, URL_PATTERNS } from '../lib/constants';
 import { sanitizeFilename } from '../lib/formatters';
 
@@ -8,56 +9,63 @@ import { sanitizeFilename } from '../lib/formatters';
  * Main content script entry point
  * Runs when the page is loaded
  */
-const init = async () => {
-  try {
-    // Check if we're on a team details page.
-    if (!isTeamDetailsPage()) {
+const init = async (): Promise<Result<void, Error>> => {
+  // Check if we're on a team details page.
+  if (!isTeamDetailsPage()) {
+    return ok(undefined);
+  }
+
+  // Wait for schedule to load (it's populated dynamically).
+  await waitForScheduleToLoad();
+
+  // Parse the schedule.
+  const gamesResult = parseSchedule(document);
+  if (gamesResult.isErr()) {
+    return err(gamesResult.error);
+  }
+
+  const games = gamesResult.value;
+  if (games.length === 0) {
+    return ok(undefined);
+  }
+
+  // Inject the games list with download handler.
+  injectGamesList(games, (selectedGames) => {
+    if (selectedGames.length === 0) {
+      alert('Please select at least one game to download.');
       return;
     }
 
-    // Wait for schedule to load (it's populated dynamically).
-    await waitForScheduleToLoad();
+    // Generate ICS file.
+    const icsResult = generateICS(selectedGames);
 
-    // Parse the schedule.
-    const games = parseSchedule(document);
-
-    if (games.length === 0) {
-      return;
-    }
-
-    // Inject the games list with download handler.
-    injectGamesList(games, (selectedGames) => {
-      try {
-        if (selectedGames.length === 0) {
-          alert('Please select at least one game to download.');
-          return;
-        }
-
-        // Generate ICS file.
-        const icsContent = generateICS(selectedGames);
-
+    icsResult.match(
+      (icsContent) => {
         // Trigger download.
         const teamName = selectedGames[0]?.teamName || 'team';
         const filename = `${sanitizeFilename(teamName)}-schedule.ics`;
         downloadICS(icsContent, filename);
-      } catch (error) {
-        if (error instanceof ICSGenerationError) {
-          alert(
-            `Failed to generate calendar file: ${error.message}\n\nPlease try again or contact support if the problem persists.`
-          );
-        } else {
-          alert(
-            'An unexpected error occurred while generating the calendar file. Please try again.'
-          );
-        }
+      },
+      (error) => {
+        alert(
+          `Failed to generate calendar file: ${error.message}\n\nPlease try again or contact support if the problem persists.`
+        );
       }
-    });
-  } catch (error) {
-    // Top-level error handling for initialization failures.
-    alert(
-      `Extension failed to load: ${error instanceof Error ? error.message : 'Unknown error'}\n\nPlease refresh the page.`
     );
-  }
+  });
+
+  return ok(undefined);
+};
+
+/**
+ * Initializes the extension and handles errors.
+ */
+const initWithErrorHandling = async (): Promise<void> => {
+  const result = await init();
+
+  result.mapErr((error) => {
+    alert(`Extension failed to load: ${error.message}\n\nPlease refresh the page.`);
+  });
 };
 
 /**
@@ -94,7 +102,7 @@ const isTeamDetailsPage = (): boolean => {
 
 // Initialize when DOM is ready.
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', init);
+  document.addEventListener('DOMContentLoaded', initWithErrorHandling);
 } else {
-  init();
+  initWithErrorHandling();
 }
