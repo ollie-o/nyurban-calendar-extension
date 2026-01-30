@@ -1,33 +1,20 @@
 # NY Urban Calendar Extension
 
-A Chrome extension that adds a calendar export button to NY Urban volleyball team schedule pages.
+Chrome extension that exports NY Urban volleyball schedules to your calendar.
 
 ## Features
 
-- Automatically detects NY Urban team schedule pages
-- Parses game information (opponent, date, time, location)
-- Exports games to ICS calendar format
-- Works with any calendar app (Google Calendar, Apple Calendar, Outlook, etc.)
+- Auto-detects NY Urban team schedule pages
+- Select which games to export
+- Downloads `.ics` file compatible with all calendar apps
+- Includes game details, location, and timezone-accurate times
 
 ## Installation
 
-1. Clone this repository
-2. Install dependencies: `npm install`
-3. Build the extension: `npm run build`
-4. Load the `dist` folder as an unpacked extension in Chrome
+1. `npm install && npm run build`
+2. Load `dist/` folder as unpacked extension in Chrome
+3. Navigate to your team schedule on nyurban.com
 
-## Development
+## Contributing
 
-```bash
-npm install       # Install dependencies
-npm test          # Run tests
-npm run lint      # Check code quality
-npm run build     # Build for production
-```
-
-## Usage
-
-1. Navigate to your team's schedule page on nyurban.com
-2. Click the "Export to Calendar" button
-3. Select the games you want to export
-4. Import the downloaded `.ics` file into your calendar app
+See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup and code guidelines.
