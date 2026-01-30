@@ -1,4 +1,9 @@
-import { parseSchedule, isValidGame, getEasternOffset } from '../src/content/parser';
+import {
+  parseSchedule,
+  isValidGame,
+  getEasternOffset,
+  extractTeamName,
+} from '../src/content/parser';
 import { Game } from '../src/lib/types';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -31,6 +36,28 @@ const loadHTMLFixture = (filename: string): Document => {
   // Not a view-source wrapper, return as-is.
   return wrapperDom.window.document;
 };
+
+describe('Error Handling', () => {
+  it('should return error when team name not found', () => {
+    const emptyDoc = new JSDOM('<html><body></body></html>').window.document;
+    const result = extractTeamName(emptyDoc);
+
+    expect(result.isErr()).toBe(true);
+    if (result.isErr()) {
+      expect(result.error.message).toBe('Team name not found on page');
+    }
+  });
+
+  it('should return error for invalid document', () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result = parseSchedule(null as any);
+
+    expect(result.isErr()).toBe(true);
+    if (result.isErr()) {
+      expect(result.error.message).toBe('Invalid document provided to parseSchedule');
+    }
+  });
+});
 
 describe('Timezone Offset', () => {
   const testCases = [
@@ -71,68 +98,69 @@ describe('Parser', () => {
           gameNumber: 1,
           opponent: 'Sloppy Sets',
           date: '2026-01-13T18:30:00-05:00',
-          location: 'Adolph Ochs School',
-          description: '440 West 53rd St btw 9th&10th\nGym is in the basement. NO spectators',
+          location: 'AOS',
+          description:
+            'Adolph Ochs School 440 West 53rd St btw 9th&10th Gym is in the basement. NO spectators',
         },
         {
           gameNumber: 2,
           opponent: 'Grass-roots Effort',
           date: '2026-01-28T18:30:00-05:00',
-          location: 'District 2 Pre K',
+          location: 'D2P',
           description:
-            '355 E. 76th bet 1st & 2nd\nDo not arrive at school before 6:15 *Special Note* There is only a 5 minute grace period before calling a forfeit at D2P. Please be on time! . Bring ID. Take stairs to the 6th floor gym. No Spectators.',
+            'District 2 Pre K 355 E. 76th bet 1st & 2nd Do not arrive at school before 6:15 *Special Note* There is only a 5 minute grace period before calling a forfeit at D2P. Please be on time! . Bring ID. Take stairs to the 6th floor gym. No Spectators.',
         },
         {
           gameNumber: 3,
           opponent: 'Googley 1',
           date: '2026-02-04T20:10:00-05:00',
-          location: 'Brandeis H.S. (Near Court)',
+          location: 'BRN-N',
           description:
-            '84th bet Columbus & Amsterdam\nPlayers may not enter the school before 8 PM. No Spectators. No Children. No Bikes.',
+            'Brandeis H.S. (Near Court) 84th bet Columbus & Amsterdam Players may not enter the school before 8 PM. No Spectators. No Children. No Bikes.',
         },
         {
           gameNumber: 4,
           opponent: 'Serves you Right',
           date: '2026-02-19T21:10:00-05:00',
-          location: 'Chelsea School',
-          description: '281 9th Ave.(bet 26th & 27th)',
+          location: 'CHL',
+          description: 'Chelsea School 281 9th Ave.(bet 26th & 27th)',
         },
         {
           gameNumber: 5,
           opponent: 'NPH',
           date: '2026-02-25T19:00:00-05:00',
-          location: 'LaGuardia H.S. (Far Court)',
-          description: '65th St & Amsterdam\nNo Bikes!   NO SPECTATORS!',
+          location: 'LAG-F',
+          description: 'LaGuardia H.S. (Far Court) 65th St & Amsterdam No Bikes! NO SPECTATORS!',
         },
         {
           gameNumber: 6,
           opponent: 'Overcooked',
           date: '2026-03-04T19:00:00-05:00',
-          location: 'Chelsea School',
-          description: '281 9th Ave.(bet 26th & 27th)',
+          location: 'CHL',
+          description: 'Chelsea School 281 9th Ave.(bet 26th & 27th)',
         },
         {
           gameNumber: 7,
           opponent: 'INTERVOL',
           date: '2026-03-19T20:10:00-04:00',
-          location: 'Brandeis H.S. (Near Court)',
+          location: 'BRN-N',
           description:
-            '84th bet Columbus & Amsterdam\nPlayers may not enter the school before 8 PM. No Spectators. No Children. No Bikes.',
+            'Brandeis H.S. (Near Court) 84th bet Columbus & Amsterdam Players may not enter the school before 8 PM. No Spectators. No Children. No Bikes.',
         },
         {
           gameNumber: 8,
           opponent: 'Volley Llamas',
           date: '2026-03-27T21:15:00-04:00',
-          location: 'John Jay College (Auxillary)',
+          location: 'JJC-A',
           description:
-            '59th Street & 10th Ave.\nJJC-M main gym, JJC-A auxiliary gym. (F= far court, N= near court)   NO SPECTATORS!',
+            'John Jay College (Auxillary) 59th Street & 10th Ave. JJC-M main gym, JJC-A auxiliary gym. (F= far court, N= near court) NO SPECTATORS!',
         },
         {
           gameNumber: 9,
           opponent: 'Fourmidable',
           date: '2026-03-31T21:15:00-04:00',
-          location: 'LaGuardia H.S. (Near Court)',
-          description: '65th St & Amsterdam\nNo Bikes!   NO SPECTATORS!',
+          location: 'LAG-N',
+          description: 'LaGuardia H.S. (Near Court) 65th St & Amsterdam No Bikes! NO SPECTATORS!',
         },
       ],
     },
@@ -146,64 +174,64 @@ describe('Parser', () => {
           gameNumber: 1,
           opponent: 'Limited Edition Release',
           date: '2026-07-16T21:15:00-04:00',
-          location: 'John Jay College (Near Court)',
+          location: 'JJC-N',
           description:
-            '59th Street & 10th Ave.\nJJC-M main gym, JJC-A auxiliary gym. (F= far court, N= near court)   NO SPECTATORS!',
+            'John Jay College (Near Court) 59th Street & 10th Ave. JJC-M main gym, JJC-A auxiliary gym. (F= far court, N= near court) NO SPECTATORS!',
         },
         {
           gameNumber: 2,
           opponent: 'Pineapple Express',
           date: '2026-07-21T19:00:00-04:00',
-          location: 'LaGuardia H.S. (Near Court)',
-          description: '65th St & Amsterdam\nNo Bikes!   NO SPECTATORS!',
+          location: 'LAG-N',
+          description: 'LaGuardia H.S. (Near Court) 65th St & Amsterdam No Bikes! NO SPECTATORS!',
         },
         {
           gameNumber: 3,
           opponent: 'Sandy Cheeks',
           date: '2026-07-31T19:00:00-04:00',
-          location: 'Brandeis H.S. (Far Court)',
+          location: 'BRN-F',
           description:
-            '84th bet Columbus & Amsterdam\nPlayers may not enter the school before 8 PM. No Spectators. No Children. No Bikes.',
+            'Brandeis H.S. (Far Court) 84th bet Columbus & Amsterdam Players may not enter the school before 8 PM. No Spectators. No Children. No Bikes.',
         },
         {
           gameNumber: 4,
           opponent: 'OnlyMans',
           date: '2026-08-04T21:15:00-04:00',
-          location: 'Brandeis H.S. (Near Court)',
+          location: 'BRN-N',
           description:
-            '84th bet Columbus & Amsterdam\nPlayers may not enter the school before 8 PM. No Spectators. No Children. No Bikes.',
+            'Brandeis H.S. (Near Court) 84th bet Columbus & Amsterdam Players may not enter the school before 8 PM. No Spectators. No Children. No Bikes.',
         },
         {
           gameNumber: 5,
           opponent: 'McFlurries',
           date: '2026-08-14T19:00:00-04:00',
-          location: 'Brandeis H.S. (Far Court)',
+          location: 'BRN-F',
           description:
-            '84th bet Columbus & Amsterdam\nPlayers may not enter the school before 8 PM. No Spectators. No Children. No Bikes.',
+            'Brandeis H.S. (Far Court) 84th bet Columbus & Amsterdam Players may not enter the school before 8 PM. No Spectators. No Children. No Bikes.',
         },
         {
           gameNumber: 6,
           opponent: 'Elpha-baddies',
           date: '2026-08-20T19:00:00-04:00',
-          location: 'St. John Nepomucene',
+          location: 'SJN',
           description:
-            '406 E. 67th St (1st/York)\nEnter via middle set of gray doors on 67th b/w 1st & York. Do not arrive before 8pm, or 7pm on Wednesdays. NO SPECTATORS',
+            'St. John Nepomucene 406 E. 67th St (1st/York) Enter via middle set of gray doors on 67th b/w 1st & York. Do not arrive before 8pm, or 7pm on Wednesdays. NO SPECTATORS',
         },
         {
           gameNumber: 7,
           opponent: 'Team Solo Mid',
           date: '2026-08-25T21:15:00-04:00',
-          location: 'John Jay College (Near Court)',
+          location: 'JJC-N',
           description:
-            '59th Street & 10th Ave.\nJJC-M main gym, JJC-A auxiliary gym. (F= far court, N= near court)   NO SPECTATORS!',
+            'John Jay College (Near Court) 59th Street & 10th Ave. JJC-M main gym, JJC-A auxiliary gym. (F= far court, N= near court) NO SPECTATORS!',
         },
         {
           gameNumber: 8,
           opponent: 'Pineapple Express',
           date: '2026-09-11T19:00:00-04:00',
-          location: 'John Jay College (Near Court)',
+          location: 'JJC-N',
           description:
-            '59th Street & 10th Ave.\nJJC-M main gym, JJC-A auxiliary gym. (F= far court, N= near court)   NO SPECTATORS!',
+            'John Jay College (Near Court) 59th Street & 10th Ave. JJC-M main gym, JJC-A auxiliary gym. (F= far court, N= near court) NO SPECTATORS!',
         },
       ],
     },
@@ -217,68 +245,68 @@ describe('Parser', () => {
           gameNumber: 1,
           opponent: 'Built Assets',
           date: '2026-01-14T18:30:00-05:00',
-          location: 'District 2 Pre K',
+          location: 'D2P',
           description:
-            '355 E. 76th bet 1st & 2nd\nDo not arrive at school before 6:15 *Special Note* There is only a 5 minute grace period before calling a forfeit at D2P. Please be on time! . Bring ID. Take stairs to the 6th floor gym. No Spectators.',
+            'District 2 Pre K 355 E. 76th bet 1st & 2nd Do not arrive at school before 6:15 *Special Note* There is only a 5 minute grace period before calling a forfeit at D2P. Please be on time! . Bring ID. Take stairs to the 6th floor gym. No Spectators.',
         },
         {
           gameNumber: 2,
           opponent: 'Tyrannosaurus Sets',
           date: '2026-01-29T19:00:00-05:00',
-          location: 'Chelsea School',
-          description: '281 9th Ave.(bet 26th & 27th)',
+          location: 'CHL',
+          description: 'Chelsea School 281 9th Ave.(bet 26th & 27th)',
         },
         {
           gameNumber: 3,
           opponent: 'Unprotected Sets',
           date: '2026-02-05T21:15:00-05:00',
-          location: 'LaGuardia H.S. (Far Court)',
-          description: '65th St & Amsterdam\nNo Bikes!   NO SPECTATORS!',
+          location: 'LAG-F',
+          description: 'LaGuardia H.S. (Far Court) 65th St & Amsterdam No Bikes! NO SPECTATORS!',
         },
         {
           gameNumber: 4,
           opponent: 'NYC Seniors',
           date: '2026-02-12T21:10:00-05:00',
-          location: 'Chelsea School',
-          description: '281 9th Ave.(bet 26th & 27th)',
+          location: 'CHL',
+          description: 'Chelsea School 281 9th Ave.(bet 26th & 27th)',
         },
         {
           gameNumber: 5,
           opponent: 'fka Dreyfus',
           date: '2026-02-24T20:10:00-05:00',
-          location: 'LaGuardia H.S. (Far Court)',
-          description: '65th St & Amsterdam\nNo Bikes!   NO SPECTATORS!',
+          location: 'LAG-F',
+          description: 'LaGuardia H.S. (Far Court) 65th St & Amsterdam No Bikes! NO SPECTATORS!',
         },
         {
           gameNumber: 6,
           opponent: 'Funky Sets',
           date: '2026-03-05T19:40:00-05:00',
-          location: 'District 2 Pre K',
+          location: 'D2P',
           description:
-            '355 E. 76th bet 1st & 2nd\nDo not arrive at school before 6:15 *Special Note* There is only a 5 minute grace period before calling a forfeit at D2P. Please be on time! . Bring ID. Take stairs to the 6th floor gym. No Spectators.',
+            'District 2 Pre K 355 E. 76th bet 1st & 2nd Do not arrive at school before 6:15 *Special Note* There is only a 5 minute grace period before calling a forfeit at D2P. Please be on time! . Bring ID. Take stairs to the 6th floor gym. No Spectators.',
         },
         {
           gameNumber: 7,
           opponent: 'Blockbusters',
           date: '2026-03-11T20:10:00-04:00',
-          location: 'Brandeis H.S. (Far Court)',
+          location: 'BRN-F',
           description:
-            '84th bet Columbus & Amsterdam\nPlayers may not enter the school before 8 PM. No Spectators. No Children. No Bikes.',
+            'Brandeis H.S. (Far Court) 84th bet Columbus & Amsterdam Players may not enter the school before 8 PM. No Spectators. No Children. No Bikes.',
         },
         {
           gameNumber: 8,
           opponent: 'Googley 3',
           date: '2026-03-17T20:10:00-04:00',
-          location: 'LaGuardia H.S. (Far Court)',
-          description: '65th St & Amsterdam\nNo Bikes!   NO SPECTATORS!',
+          location: 'LAG-F',
+          description: 'LaGuardia H.S. (Far Court) 65th St & Amsterdam No Bikes! NO SPECTATORS!',
         },
         {
           gameNumber: 9,
           opponent: 'Your Neighborhood Spikers',
           date: '2026-03-27T20:10:00-04:00',
-          location: 'John Jay College (Auxillary)',
+          location: 'JJC-A',
           description:
-            '59th Street & 10th Ave.\nJJC-M main gym, JJC-A auxiliary gym. (F= far court, N= near court)   NO SPECTATORS!',
+            'John Jay College (Auxillary) 59th Street & 10th Ave. JJC-M main gym, JJC-A auxiliary gym. (F= far court, N= near court) NO SPECTATORS!',
         },
       ],
     },
@@ -294,7 +322,15 @@ describe('Parser', () => {
   testCases.forEach(({ name, fixture, expectedTeamName, expectedGameCount, expectedGames }) => {
     it(name, () => {
       const doc = loadHTMLFixture(fixture);
-      const games = parseSchedule(doc);
+      const result = parseSchedule(doc);
+
+      // Check that parsing succeeds.
+      expect(result.isOk()).toBe(true);
+      if (!result.isOk()) {
+        return;
+      }
+
+      const games = result.value;
 
       // Assert team name.
       expect(games).toBeInstanceOf(Array);
@@ -325,7 +361,6 @@ describe('Parser', () => {
       teamName: 'Test Team',
       opponent: 'Opponent',
       date: '2026-02-15T19:00:00-05:00',
-      time: '19:00',
       location: 'Gym',
       locationDetails: '123 Main St\nNotes about location',
     };

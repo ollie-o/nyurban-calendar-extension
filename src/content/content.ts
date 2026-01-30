@@ -1,92 +1,112 @@
+import { Result, ok, err } from 'neverthrow';
 import { parseSchedule } from './parser';
-import { injectCalendarButton, showGameSelectionModal } from './ui';
+import { injectGamesList } from './ui';
 import { generateICS, downloadICS } from '../lib/ics-generator';
+import { CONFIG, URL_PATTERNS, SELECTORS } from '../lib/constants';
+import { sanitizeFilename } from '../lib/formatters';
 
-/**
- * Main content script entry point
- * Runs when the page is loaded
- */
-const init = async () => {
-  console.log('NY Urban Calendar Extension loaded');
-
-  // Check if we're on a team details page.
+const init = async (): Promise<Result<void, Error>> => {
   if (!isTeamDetailsPage()) {
-    console.log('Not a team details page, extension inactive');
-    return;
+    return ok(undefined);
   }
 
-  // Wait for schedule to load (it's populated dynamically).
-  console.log('[NY Urban Extension] Waiting for schedule to load...');
   await waitForScheduleToLoad();
 
-  // Inject the calendar button.
-  injectCalendarButton(() => {
-    // Parse the schedule when button is clicked (in case it loads later).
-    const games = parseSchedule(document);
+  const gamesResult = parseSchedule(document);
+  if (gamesResult.isErr()) {
+    return err(gamesResult.error);
+  }
 
-    if (games.length === 0) {
-      alert(
-        "No games found on this page. Make sure you're viewing a team schedule with published games."
-      );
+  const games = gamesResult.value;
+  if (games.length === 0) {
+    injectEmptyMessage();
+    return ok(undefined);
+  }
+
+  injectGamesList(games, (selectedGames) => {
+    if (selectedGames.length === 0) {
+      alert('Please select at least one game to download.');
       return;
     }
 
-    console.log(`[NY Urban Extension] Found ${games.length} games`);
+    const icsResult = generateICS(selectedGames);
 
-    // Show the game selection modal.
-    showGameSelectionModal(games, (selectedGames) => {
-      // Generate ICS file.
-      const icsContent = generateICS(selectedGames);
-
-      if (icsContent) {
-        // Trigger download.
+    icsResult.match(
+      (icsContent) => {
         const teamName = selectedGames[0]?.teamName || 'team';
-        const filename = `${teamName.toLowerCase().replace(/\s+/g, '-')}-schedule.ics`;
+        const filename = `${sanitizeFilename(teamName)}-schedule.ics`;
         downloadICS(icsContent, filename);
-
-        console.log(`Downloaded ${selectedGames.length} games to ${filename}`);
-      } else {
-        alert('Error generating calendar file. Please try again.');
+      },
+      (error) => {
+        alert(
+          `Failed to generate calendar file: ${error.message}\n\nPlease try again or contact support if the problem persists.`
+        );
       }
-    });
+    );
+  });
+
+  return ok(undefined);
+};
+
+const initWithErrorHandling = async (): Promise<void> => {
+  const result = await init();
+  result.mapErr((error) => {
+    alert(`Extension failed to load: ${error.message}\n\nPlease refresh the page.`);
   });
 };
 
-/**
- * Waits for the schedule table to be populated with game data
- */
-const waitForScheduleToLoad = async (maxAttempts = 20): Promise<void> => {
-  for (let i = 0; i < maxAttempts; i++) {
+const waitForScheduleToLoad = async (): Promise<void> => {
+  for (let i = 0; i < CONFIG.LOAD_MAX_ATTEMPTS; i++) {
     const tables = Array.from(document.querySelectorAll('table'));
     for (const table of tables) {
       const rows = table.querySelectorAll('tbody tr');
-      // Check if we have a table with multiple rows (more than just header).
-      if (rows.length > 5) {
-        console.log(`[NY Urban Extension] Schedule loaded with ${rows.length} rows`);
+      if (rows.length > CONFIG.SCHEDULE_MIN_ROWS) {
         return;
       }
     }
-
-    // Wait 500ms before checking again.
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    await new Promise((resolve) => setTimeout(resolve, CONFIG.LOAD_RETRY_DELAY_MS));
   }
-
-  console.log('[NY Urban Extension] Timeout waiting for schedule, proceeding anyway');
 };
 
-/**
- * Checks if the current page is a team details page
- */
+const injectEmptyMessage = (): void => {
+  const existingMessage = document.getElementById('nyurban-calendar-empty');
+  if (existingMessage) {
+    return;
+  }
+
+  const messageDiv = document.createElement('div');
+  messageDiv.id = 'nyurban-calendar-empty';
+  messageDiv.style.cssText = `
+    padding: 20px;
+    margin: 20px auto;
+    max-width: 600px;
+    text-align: center;
+    background: white;
+    border: 2px solid #007bff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    color: #333;
+    font-size: 16px;
+  `;
+  messageDiv.textContent = 'No games found on this page.';
+
+  const teamDiv = document.querySelector(SELECTORS.TEAM_DIV);
+  if (teamDiv && teamDiv.parentElement) {
+    teamDiv.parentElement.insertBefore(messageDiv, teamDiv.nextSibling);
+  } else {
+    document.body.insertBefore(messageDiv, document.body.firstChild);
+  }
+};
+
 const isTeamDetailsPage = (): boolean => {
   return (
-    window.location.pathname.includes('/team-details/') &&
-    window.location.search.includes('team_id=')
+    window.location.pathname.includes(URL_PATTERNS.TEAM_DETAILS_PATH) &&
+    window.location.search.includes(URL_PATTERNS.TEAM_ID_PARAM)
   );
 };
 
-// Initialize when DOM is ready.
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', init);
+  document.addEventListener('DOMContentLoaded', initWithErrorHandling);
 } else {
-  init();
+  initWithErrorHandling();
 }

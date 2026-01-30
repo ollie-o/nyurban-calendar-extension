@@ -1,55 +1,103 @@
 import { createEvents, EventAttributes } from 'ics';
-import { Game, ICSOptions } from './types';
+import { Result, ok, err } from 'neverthrow';
+import { Game } from './types';
+import { CONFIG } from './constants';
+
+export class ICSGenerationError extends Error {
+  constructor(
+    message: string,
+    public readonly originalError?: unknown
+  ) {
+    super(message);
+    this.name = 'ICSGenerationError';
+  }
+}
 
 /**
- * Generates an ICS file content from an array of games
- * @param games - Array of Game objects to convert
- * @param options - Optional ICS generation options
- * @returns ICS file content as a string, or null if generation fails
+ * Generates an ICS calendar file content from an array of games.
  */
-export const generateICS = (games: Game[], _options: ICSOptions = {}): string | null => {
-  // Note: timezone and prodId options are currently unused as the ics library
-  // Doesn't support these options in the way we need. Keeping for future enhancement.
-
-  // Convert Game objects to ICS EventAttributes.
-  const events: EventAttributes[] = games.map((game) => {
-    // Parse ISO8601 date (e.g., "2026-01-14T18:30:00-05:00").
-    const dateObj = new Date(game.date);
-    const year = dateObj.getFullYear();
-    const month = dateObj.getMonth() + 1; // JavaScript months are 0-indexed
-    const day = dateObj.getDate();
-    const hour = dateObj.getHours();
-    const minute = dateObj.getMinutes();
-
-    const duration = game.duration || 60; // Default to 1 hour
-
-    return {
-      start: [year, month, day, hour, minute],
-      duration: { minutes: duration },
-      title: `${game.teamName} game ${game.gameNumber} vs. ${game.opponent}`,
-      location: game.location,
-      description: game.locationDetails,
-      status: 'CONFIRMED',
-      busyStatus: 'BUSY',
-      // Note: ics library handles timezone through start time array format.
-    };
-  });
-
-  // Generate ICS content.
-  const { error, value } = createEvents(events);
-
-  if (error) {
-    console.error('Error generating ICS:', error);
-    return null;
+export const generateICS = (games: Game[]): Result<string, ICSGenerationError> => {
+  if (!Array.isArray(games)) {
+    return err(new ICSGenerationError('Games must be an array'));
   }
 
-  return value || null;
+  if (games.length === 0) {
+    return err(new ICSGenerationError('Cannot generate ICS file: no games provided'));
+  }
+
+  const eventsResult = convertGamesToEvents(games);
+  if (eventsResult.isErr()) {
+    return err(eventsResult.error);
+  }
+
+  const events = eventsResult.value;
+
+  const { error: icsError, value } = createEvents(events);
+
+  if (icsError) {
+    return err(
+      new ICSGenerationError(
+        'ICS library error: ' + (icsError.message || String(icsError)),
+        icsError
+      )
+    );
+  }
+
+  if (!value) {
+    return err(new ICSGenerationError('ICS generation returned empty result'));
+  }
+
+  return ok(value);
+};
+
+const convertGamesToEvents = (games: Game[]): Result<EventAttributes[], ICSGenerationError> => {
+  const events: EventAttributes[] = [];
+
+  for (let index = 0; index < games.length; index++) {
+    const game = games[index];
+    const eventResult = convertGameToEvent(game, index);
+
+    if (eventResult.isErr()) {
+      return err(eventResult.error);
+    }
+
+    events.push(eventResult.value);
+  }
+
+  return ok(events);
+};
+
+const convertGameToEvent = (
+  game: Game,
+  index: number
+): Result<EventAttributes, ICSGenerationError> => {
+  const dateObj = new Date(game.date);
+
+  if (isNaN(dateObj.getTime())) {
+    return err(new ICSGenerationError(`Invalid date for game ${index + 1}: ${game.date}`));
+  }
+
+  const year = dateObj.getFullYear();
+  const month = dateObj.getMonth() + 1;
+  const day = dateObj.getDate();
+  const hour = dateObj.getHours();
+  const minute = dateObj.getMinutes();
+
+  const duration = game.duration || CONFIG.DEFAULT_GAME_DURATION_MINUTES;
+
+  return ok({
+    start: [year, month, day, hour, minute],
+    duration: { minutes: duration },
+    title: `${game.teamName} game ${game.gameNumber} vs. ${game.opponent}`,
+    location: game.location,
+    description: game.locationDetails,
+    status: 'CONFIRMED',
+    busyStatus: 'BUSY',
+  });
 };
 
 /**
- * Triggers a browser download of the ICS file
- * @param icsContent - The ICS file content string
- * @param filename - The filename for the download (default: "nyurban-schedule.ics")
+ * Triggers a browser download of the ICS file.
  */
 export const downloadICS = (icsContent: string, filename = 'nyurban-schedule.ics'): void => {
   const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
@@ -63,7 +111,6 @@ export const downloadICS = (icsContent: string, filename = 'nyurban-schedule.ics
   document.body.appendChild(link);
   link.click();
 
-  // Clean up.
   document.body.removeChild(link);
   URL.revokeObjectURL(url);
 };

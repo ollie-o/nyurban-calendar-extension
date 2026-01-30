@@ -1,197 +1,162 @@
+import { Result, ok, err } from 'neverthrow';
 import { Game } from '../lib/types';
+import { CONFIG, SELECTORS } from '../lib/constants';
 
 /**
- * Parses the NY Urban schedule page and extracts game information
- * @param doc - The HTML document to parse
- * @returns Array of Game objects
+ * Parses a NY Urban schedule page and extracts all game data.
  */
-export const parseSchedule = (doc: Document): Game[] => {
-  const games: Game[] = [];
-
-  // Extract team name.
-  const teamName = extractTeamName(doc);
-
-  // Find the schedule table (table with "Date | Location | Time | Opponent | Results" header).
-  const scheduleTable = findScheduleTable(doc);
-  if (!scheduleTable) {
-    return games;
+export const parseSchedule = (doc: Document): Result<Game[], Error> => {
+  if (!doc || !doc.querySelector) {
+    return err(new Error('Invalid document provided to parseSchedule'));
   }
 
-  // Get all rows.
-  const rows = Array.from(scheduleTable.querySelectorAll('tbody tr'));
+  const teamNameResult = extractTeamName(doc);
+  if (teamNameResult.isErr()) {
+    return err(teamNameResult.error);
+  }
 
-  // Filter to game rows (rows with 5+ cells, excluding header).
-  const gameRows = rows.filter((row) => {
-    const cells = row.querySelectorAll('td');
-    return cells.length >= 5;
+  const teamName = teamNameResult.value;
+
+  const tables = Array.from(doc.querySelectorAll(SELECTORS.SCHEDULE_TABLE));
+  const scheduleTable = tables.find((table) => {
+    const rows = table.querySelectorAll('tbody tr');
+    if (rows.length <= CONFIG.SCHEDULE_MIN_ROWS) {
+      return false;
+    }
+
+    // Check if first row looks like a schedule header (has "Date" in first cell).
+    const firstRow = rows[0];
+    const firstCell = firstRow?.querySelector('td');
+    const headerText = firstCell?.textContent?.trim().toLowerCase();
+    return headerText === 'date';
   });
 
-  // Skip first row (header).
-  let gameNumber = 1;
-  for (let i = 1; i < gameRows.length; i++) {
-    const row = gameRows[i];
-    const game = parseGameRow(row, teamName, gameNumber);
+  if (!scheduleTable) {
+    return ok([]);
+  }
 
-    if (game && isValidGame(game)) {
-      games.push(game);
+  const allRows = Array.from(scheduleTable.querySelectorAll('tbody tr'));
+  const rows = allRows.slice(1);
+  const games: Game[] = [];
+  let gameNumber = 1;
+
+  for (const row of rows) {
+    const gameDataResult = parseGameRow(row, teamName, gameNumber);
+
+    if (gameDataResult.isErr()) {
+      return err(gameDataResult.error);
+    }
+
+    const gameData = gameDataResult.value;
+    if (gameData && isValidGame(gameData)) {
+      games.push(gameData);
       gameNumber++;
     }
   }
 
-  return games;
+  return ok(games);
 };
 
-/**
- * Finds the schedule table in the document
- * The schedule is split into two tables: a header table and a data table
- */
-const findScheduleTable = (doc: Document): HTMLTableElement | null => {
-  const tables = Array.from(doc.querySelectorAll('table'));
-
-  // Find table with header row containing "Date", "Location", "Time", "Opponent".
-  for (let i = 0; i < tables.length; i++) {
-    const table = tables[i];
-    const firstRow = table.querySelector('tbody tr');
-    if (!firstRow) {
-      continue;
-    }
-
-    const cells = Array.from(firstRow.querySelectorAll('td'));
-    if (cells.length < 4) {
-      continue;
-    }
-
-    const headerText = cells.map((c) => c.textContent?.trim().toLowerCase()).join(' ');
-    if (
-      headerText.includes('date') &&
-      headerText.includes('location') &&
-      headerText.includes('time') &&
-      headerText.includes('opponent')
-    ) {
-      // The actual game data is usually in the NEXT table.
-      if (i + 1 < tables.length) {
-        const dataTable = tables[i + 1];
-        const dataRows = dataTable.querySelectorAll('tbody tr');
-
-        if (dataRows.length > 1) {
-          return dataTable as HTMLTableElement;
-        }
-      }
-
-      // Fall back to header table if next table doesn't have data.
-      return table as HTMLTableElement;
-    }
-  }
-
-  return null;
-};
-
-/**
- * Parses a single game row
- */
-const parseGameRow = (row: Element, teamName: string, gameNumber: number): Partial<Game> | null => {
+const parseGameRow = (
+  row: Element,
+  teamName: string,
+  gameNumber: number
+): Result<Partial<Game> | null, Error> => {
   const cells = Array.from(row.querySelectorAll('td'));
 
   if (cells.length < 5) {
-    return null;
+    return ok(null);
   }
 
-  // Extract date (cell 0) - format: "Wed 01/14" or "Thu 01/29".
   const dateText = cells[0]?.textContent?.trim() || '';
   if (dateText.includes('No Game')) {
-    return null; // Skip "No Game This Week" rows.
+    return ok(null);
   }
 
-  // Extract time (cell 3).
   const timeText = cells[3]?.textContent?.trim() || '';
   if (!timeText) {
-    return null;
+    return ok(null);
   }
 
-  // Parse date and time.
-  const { date, time } = parseDateAndTime(dateText, timeText);
-  if (!date || !time) {
-    return null;
+  const dateResult = parseDateAndTime(dateText, timeText);
+  if (dateResult.isErr()) {
+    return err(dateResult.error);
   }
 
-  // Extract location from cell 2 (has full location name and address).
-  const cell2Text = cells[2]?.textContent?.trim() || '';
-  // Split by tabs and newlines, filter out empty strings and unwanted text.
-  const locationParts = cell2Text
-    .split(/[\t\n]+/)
-    .map((l) => l.trim())
-    .filter((l) => l && !l.includes('arrow') && !l.includes('Map') && !l.includes('Directions'));
-  // First part is the location name.
-  const location = locationParts[0] || '';
-  // Remaining parts (address, notes, etc.) go into details.
-  const locationDetails = locationParts.slice(1).join('\n');
+  const date = dateResult.value;
+  if (!date) {
+    return ok(null);
+  }
 
-  // Extract opponent from cell 4.
-  // Cell 4 contains opponent name followed by whitespace/tabs, then "arrow" and popup data.
+  // Location code is in cell 1 (first link).
+  const locationLink = cells[1]?.querySelector('a');
+  const locationCode = locationLink?.textContent?.trim() || '';
+
+  // Full location details from cell 2 (name, address, and rules).
+  let locationFullDetails = cells[2]?.textContent?.trim() || '';
+  // Remove "Map" or "Map Directions" link text at the end.
+  locationFullDetails = locationFullDetails.replace(/\s*(Map|Map\s+Directions)\s*$/i, '');
+  // Clean up excessive whitespace.
+  locationFullDetails = locationFullDetails.replace(/\s+/g, ' ').trim();
+
+  const location = locationCode;
+  const locationDetails = locationFullDetails;
+
   const cell4Text = cells[4]?.textContent?.trim() || '';
   const opponent = cell4Text.split(/[\t\n]{3,}|\s{10,}/)[0]?.trim() || '';
 
   if (!opponent || opponent.includes('No Game')) {
-    return null;
+    return ok(null);
   }
 
-  return {
+  return ok({
     gameNumber,
     teamName,
     opponent,
     date,
-    time,
     location,
     locationDetails,
-    duration: 60, // Default 1 hour.
-  };
+    duration: CONFIG.DEFAULT_GAME_DURATION_MINUTES,
+  });
 };
 
-/**
- * Parses date and time from NY Urban format
- * Date format: "Wed 01/14" (month/day, current year assumed)
- * Time format: "6:30" or "9:15" (24-hour or AM/PM)
- * Returns ISO8601 format with Eastern timezone
- */
-const parseDateAndTime = (dateText: string, timeText: string): { date: string; time: string } => {
-  // Extract month and day from "Wed 01/14".
+const parseDateAndTime = (dateText: string, timeText: string): Result<string, Error> => {
   const dateMatch = dateText.match(/(\d{1,2})\/(\d{1,2})/);
   if (!dateMatch) {
-    return { date: '', time: '' };
+    return ok('');
   }
 
-  const month = dateMatch[1].padStart(2, '0');
-  const day = dateMatch[2].padStart(2, '0');
+  const month = parseInt(dateMatch[1]);
+  const day = parseInt(dateMatch[2]);
 
-  // Assume current year (or next year if date has passed).
-  // For now, use 2026 as seen in the example.
-  const year = '2026';
+  if (month < 1 || month > 12 || day < 1 || day > 31) {
+    return err(new Error(`Invalid date values: month=${month}, day=${day}`));
+  }
 
-  // Parse time - convert to 24-hour format if needed.
+  const year = getCurrentOrNextYear(month, day);
+
   let time = timeText.trim();
 
-  // If time doesn't have AM/PM, assume it's already in 24-hour format or PM for evening times.
   if (!time.match(/am|pm/i)) {
     const timeParts = time.split(':');
     if (timeParts.length !== 2) {
-      return { date: '', time: '' }; // Invalid time format.
+      return ok('');
     }
 
     const hours = parseInt(timeParts[0]);
     const minutes = parseInt(timeParts[1]);
 
     if (isNaN(hours) || isNaN(minutes)) {
-      return { date: '', time: '' }; // Invalid numbers.
+      return ok('');
     }
 
+    // Assume PM for evening games (6:00-11:59).
     if (hours < 12 && hours >= 6) {
-      // Likely PM for evening games (6:00-11:59).
       time = `${(hours + 12).toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
     } else {
       time = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
     }
   } else {
-    // Convert AM/PM to 24-hour.
     const match = time.match(/(\d{1,2}):(\d{2})\s*(am|pm)/i);
     if (match) {
       let hours = parseInt(match[1]);
@@ -209,30 +174,32 @@ const parseDateAndTime = (dateText: string, timeText: string): { date: string; t
     }
   }
 
-  // Determine timezone offset (EST vs EDT) accurately.
-  const tzOffset = getEasternOffset(
-    parseInt(year),
-    parseInt(month),
-    parseInt(day),
-    parseInt(time.split(':')[0]),
-    parseInt(time.split(':')[1])
-  );
+  const [hours, minutes] = time.split(':').map(Number);
+  const tzOffset = getEasternOffset(year, month, day, hours, minutes);
 
-  // Combine into ISO8601 format with timezone.
-  const date = `${year}-${month}-${day}T${time}:00${tzOffset}`;
+  const monthStr = month.toString().padStart(2, '0');
+  const dayStr = day.toString().padStart(2, '0');
+  return ok(`${year}-${monthStr}-${dayStr}T${time}:00${tzOffset}`);
+};
 
-  return { date, time };
+const getCurrentOrNextYear = (month: number, day: number): number => {
+  const now = new Date();
+  const currentYear = now.getFullYear();
+
+  // Option A: Date with current year.
+  const dateCurrentYear = new Date(currentYear, month - 1, day);
+  const diffCurrentYear = Math.abs(dateCurrentYear.getTime() - now.getTime());
+
+  // Option B: Date with next year.
+  const dateNextYear = new Date(currentYear + 1, month - 1, day);
+  const diffNextYear = Math.abs(dateNextYear.getTime() - now.getTime());
+
+  // Return whichever year makes the date closer to today.
+  return diffCurrentYear <= diffNextYear ? currentYear : currentYear + 1;
 };
 
 /**
- * Determines the correct Eastern timezone offset (EST or EDT) for a given date/time.
- * Uses JavaScript's Intl API to accurately determine if DST is in effect.
- * @param year - The year
- * @param month - The month (1-12)
- * @param day - The day of month
- * @param hour - The hour (0-23)
- * @param minute - The minute (0-59)
- * @returns The timezone offset string (either '-05:00' for EST or '-04:00' for EDT)
+ * Returns EST (-05:00) or EDT (-04:00) based on DST for the given date/time.
  */
 export const getEasternOffset = (
   year: number,
@@ -241,11 +208,8 @@ export const getEasternOffset = (
   hour: number,
   minute: number
 ): string => {
-  // Create a date object for this specific moment.
-  // The local timezone doesn't matter; we just need a reference date.
   const date = new Date(year, month - 1, day, hour, minute);
 
-  // Use Intl to format with America/New_York timezone and get the timezone name.
   const formatter = new Intl.DateTimeFormat('en-US', {
     timeZone: 'America/New_York',
     timeZoneName: 'short',
@@ -254,40 +218,29 @@ export const getEasternOffset = (
   const parts = formatter.formatToParts(date);
   const tzName = parts.find((part) => part.type === 'timeZoneName')?.value;
 
-  // EDT (Eastern Daylight Time) = -04:00, EST (Eastern Standard Time) = -05:00.
   return tzName === 'EDT' ? '-04:00' : '-05:00';
 };
 
 /**
- * Extracts the team name from the page
- * @param doc - The HTML document
- * @returns The team name
+ * Extracts the team name from the page header.
  */
-export const extractTeamName = (doc: Document): string => {
-  // Look for the team name in the green_block team div.
-  const teamHeader = doc.querySelector('.green_block.team h1 span');
+export const extractTeamName = (doc: Document): Result<string, Error> => {
+  const teamHeader = doc.querySelector(SELECTORS.TEAM_NAME);
 
   if (teamHeader) {
     const teamName = teamHeader.textContent?.trim() || '';
-    // Remove any prefixes like "***zwl-" that might appear.
-    return teamName.replace(/^\*+[a-z]+-/i, '').trim();
+    if (!teamName) {
+      return err(new Error('Team name element found but contains no text'));
+    }
+    return ok(teamName.replace(/^\*+[a-z]+-/i, '').trim());
   }
 
-  return '';
+  return err(new Error('Team name not found on page'));
 };
 
 /**
- * Validates that a game object has all required fields
- * @param game - The game object to validate
- * @returns True if valid, false otherwise
+ * Type guard to validate that a game object has all required fields.
  */
 export const isValidGame = (game: Partial<Game>): game is Game => {
-  return !!(
-    game.gameNumber &&
-    game.teamName &&
-    game.opponent &&
-    game.date &&
-    game.time &&
-    game.location
-  );
+  return !!(game.gameNumber && game.teamName && game.opponent && game.date && game.location);
 };
