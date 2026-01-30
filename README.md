@@ -19,7 +19,7 @@ A Chrome extension that adds a calendar export button to NY Urban volleyball tea
 ## Development
 
 ```bash
-npm install        # Install dependencies
+npm install       # Install dependencies
 npm test          # Run tests
 npm run lint      # Check code quality
 npm run build     # Build for production
