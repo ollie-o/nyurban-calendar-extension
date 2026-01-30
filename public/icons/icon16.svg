@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
-  <rect x="1.6" y="2.4" width="12.8" height="12" 
-        fill="#4285f4" rx="0.8" stroke="#1967d2" stroke-width="0.32"/>
-  <rect x="1.6" y="2.4" width="12.8" height="3.2" 
-        fill="#1967d2" rx="0.8"/>
-  <text x="8" y="9.6" font-size="4.8" 
-        text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-weight="bold">📅</text>
-</svg>

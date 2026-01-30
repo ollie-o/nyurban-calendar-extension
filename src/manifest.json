@@ -13,9 +13,7 @@
     }
   ],
   "icons": {
-    "16": "icons/icon16.svg",
-    "48": "icons/icon48.svg",
-    "128": "icons/icon128.svg"
+    "128": "icons/icon128.png"
   },
   "action": {
     "default_title": "NY Urban Calendar"
