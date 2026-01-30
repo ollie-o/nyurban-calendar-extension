@@ -2,6 +2,7 @@ import { parseSchedule } from './parser';
 import { injectGamesList } from './ui';
 import { generateICS, downloadICS, ICSGenerationError } from '../lib/ics-generator';
 import { CONFIG, URL_PATTERNS } from '../lib/constants';
+import { sanitizeFilename } from '../lib/formatters';
 
 /**
  * Main content script entry point
@@ -37,7 +38,7 @@ const init = async () => {
 
         // Trigger download.
         const teamName = selectedGames[0]?.teamName || 'team';
-        const filename = `${teamName.toLowerCase().replace(/\s+/g, '-')}-schedule.ics`;
+        const filename = `${sanitizeFilename(teamName)}-schedule.ics`;
         downloadICS(icsContent, filename);
       } catch (error) {
         if (error instanceof ICSGenerationError) {

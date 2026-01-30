@@ -44,6 +44,7 @@ describe('Error Handling', () => {
   });
 
   it('should throw error for invalid document', () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     expect(() => parseSchedule(null as any)).toThrow('Invalid document provided to parseSchedule');
   });
 });

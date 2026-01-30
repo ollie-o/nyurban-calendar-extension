@@ -1,6 +1,7 @@
 import { Game } from '../lib/types';
 import { UI_IDS, SELECTORS } from '../lib/constants';
 import { createControlsRow, createEmptyState } from '../lib/ui-helpers';
+import { formatDate, formatTime } from '../lib/formatters';
 
 /**
  * Creates and injects the game selection panel on the page
@@ -282,26 +283,4 @@ const toggleAllCheckboxes = (checked: boolean): void => {
   checkboxes.forEach((cb) => {
     cb.checked = checked;
   });
-};
-
-/**
- * Formats a date string for display
- */
-const formatDate = (dateStr: string): string => {
-  const date = new Date(dateStr);
-  return date.toLocaleDateString('en-US', {
-    weekday: 'short',
-    month: 'short',
-    day: 'numeric',
-  });
-};
-
-/**
- * Formats a time string for display
- */
-const formatTime = (timeStr: string): string => {
-  const [hour, minute] = timeStr.split(':').map(Number);
-  const ampm = hour >= 12 ? 'PM' : 'AM';
-  const hour12 = hour % 12 || 12;
-  return `${hour12}:${minute.toString().padStart(2, '0')} ${ampm}`;
 };
