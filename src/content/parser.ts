@@ -1,11 +1,16 @@
 import { Game } from '../lib/types';
+import { CONFIG, SELECTORS } from '../lib/constants';
 
 /**
  * Parses the NY Urban schedule page and extracts game information
  * @param doc - The HTML document to parse
  * @returns Array of Game objects
+ * @throws Error if document is invalid
  */
 export const parseSchedule = (doc: Document): Game[] => {
+  if (!doc || !doc.querySelector) {
+    throw new Error('Invalid document provided to parseSchedule');
+  }
   const games: Game[] = [];
 
   // Extract team name.
@@ -143,7 +148,7 @@ const parseGameRow = (row: Element, teamName: string, gameNumber: number): Parti
     time,
     location,
     locationDetails,
-    duration: 60, // Default 1 hour.
+    duration: CONFIG.DEFAULT_GAME_DURATION_MINUTES,
   };
 };
 
@@ -160,12 +165,15 @@ const parseDateAndTime = (dateText: string, timeText: string): { date: string; t
     return { date: '', time: '' };
   }
 
-  const month = dateMatch[1].padStart(2, '0');
-  const day = dateMatch[2].padStart(2, '0');
+  const month = parseInt(dateMatch[1]);
+  const day = parseInt(dateMatch[2]);
 
-  // Assume current year (or next year if date has passed).
-  // For now, use 2026 as seen in the example.
-  const year = '2026';
+  if (month < 1 || month > 12 || day < 1 || day > 31) {
+    throw new Error(`Invalid date values: month=${month}, day=${day}`);
+  }
+
+  // Determine the correct year (current or next year).
+  const year = getCurrentOrNextYear(month, day);
 
   // Parse time - convert to 24-hour format if needed.
   let time = timeText.trim();
@@ -210,18 +218,34 @@ const parseDateAndTime = (dateText: string, timeText: string): { date: string; t
   }
 
   // Determine timezone offset (EST vs EDT) accurately.
-  const tzOffset = getEasternOffset(
-    parseInt(year),
-    parseInt(month),
-    parseInt(day),
-    parseInt(time.split(':')[0]),
-    parseInt(time.split(':')[1])
-  );
+  const [hours, minutes] = time.split(':').map(Number);
+  const tzOffset = getEasternOffset(year, month, day, hours, minutes);
 
   // Combine into ISO8601 format with timezone.
-  const date = `${year}-${month}-${day}T${time}:00${tzOffset}`;
+  const monthStr = month.toString().padStart(2, '0');
+  const dayStr = day.toString().padStart(2, '0');
+  const date = `${year}-${monthStr}-${dayStr}T${time}:00${tzOffset}`;
 
   return { date, time };
+};
+
+/**
+ * Determines the correct year for a given month/day.
+ * If the date is more than YEAR_ROLLOVER_THRESHOLD_DAYS in the past, assumes next year.
+ * @param month - The month (1-12)
+ * @param day - The day of month (1-31)
+ * @returns The year (e.g., 2026, 2027)
+ */
+const getCurrentOrNextYear = (month: number, day: number): number => {
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const testDate = new Date(currentYear, month - 1, day);
+
+  // Calculate days difference.
+  const daysDiff = (testDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24);
+
+  // If date is more than threshold days in the past, assume it's next year.
+  return daysDiff < -CONFIG.YEAR_ROLLOVER_THRESHOLD_DAYS ? currentYear + 1 : currentYear;
 };
 
 /**
@@ -265,15 +289,18 @@ export const getEasternOffset = (
  */
 export const extractTeamName = (doc: Document): string => {
   // Look for the team name in the green_block team div.
-  const teamHeader = doc.querySelector('.green_block.team h1 span');
+  const teamHeader = doc.querySelector(SELECTORS.TEAM_NAME);
 
   if (teamHeader) {
     const teamName = teamHeader.textContent?.trim() || '';
+    if (!teamName) {
+      throw new Error('Team name element found but contains no text');
+    }
     // Remove any prefixes like "***zwl-" that might appear.
     return teamName.replace(/^\*+[a-z]+-/i, '').trim();
   }
 
-  return '';
+  throw new Error('Team name not found on page');
 };
 
 /**
