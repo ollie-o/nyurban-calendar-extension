@@ -109,7 +109,7 @@ export const showGameSelectionModal = (
 
   // Title.
   const title = document.createElement('h3');
-  title.textContent = 'Select Games to Add to Calendar';
+  title.textContent = 'Select games to add to calendar';
   title.style.cssText = `
     margin: 0 0 20px 0;
     font-size: 20px;
@@ -192,8 +192,8 @@ const createGameList = (
     return btn;
   };
 
-  const selectAllBtn = createControlButton('Select All', () => toggleAllCheckboxes(true));
-  const deselectAllBtn = createControlButton('Deselect All', () => toggleAllCheckboxes(false));
+  const selectAllBtn = createControlButton('Select all', () => toggleAllCheckboxes(true));
+  const deselectAllBtn = createControlButton('Deselect all', () => toggleAllCheckboxes(false));
 
   selectAllContainer.appendChild(selectAllBtn);
   selectAllContainer.appendChild(deselectAllBtn);
@@ -201,7 +201,7 @@ const createGameList = (
 
   // Download button.
   const downloadBtn = document.createElement('button');
-  downloadBtn.textContent = 'Download Calendar File (.ics)';
+  downloadBtn.textContent = 'Download calendar file (.ics)';
   downloadBtn.style.cssText = `
     padding: 10px 24px;
     border: none;
