@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "NY Urban Calendar Extension",
+  "name": "NY Urban Calendar",
   "version": "0.1.0",
   "description": "Automate adding NY Urban league games to Google Calendar",
   "permissions": ["activeTab", "downloads"],
