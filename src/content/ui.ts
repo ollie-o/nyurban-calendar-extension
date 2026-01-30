@@ -252,6 +252,7 @@ const createGameList = (
     width: 100%;
     border-collapse: collapse;
     font-size: 14px;
+    color: #000;
   `;
 
   // Table header.
@@ -270,7 +271,7 @@ const createGameList = (
       padding: 12px 8px;
       text-align: left;
       font-weight: 600;
-      color: #495057;
+      color: #000;
     `;
     if (headerText === '') {
       th.style.width = '40px';
@@ -303,6 +304,7 @@ const createGameItem = (game: Game, index: number): HTMLTableRowElement => {
   row.style.cssText = `
     border-bottom: 1px solid #e9ecef;
     cursor: pointer;
+    color: #000;
   `;
 
   // Hover effect.
@@ -339,6 +341,7 @@ const createGameItem = (game: Game, index: number): HTMLTableRowElement => {
   gameCell.style.cssText = `
     padding: 12px 8px;
     font-weight: 500;
+    color: #000;
   `;
   gameCell.textContent = `#${game.gameNumber}`;
   row.appendChild(gameCell);
@@ -347,6 +350,7 @@ const createGameItem = (game: Game, index: number): HTMLTableRowElement => {
   const opponentCell = document.createElement('td');
   opponentCell.style.cssText = `
     padding: 12px 8px;
+    color: #000;
   `;
   opponentCell.textContent = game.opponent;
   row.appendChild(opponentCell);
@@ -358,12 +362,15 @@ const createGameItem = (game: Game, index: number): HTMLTableRowElement => {
   `;
   const dateDiv = document.createElement('div');
   dateDiv.textContent = formatDate(game.date);
-  dateDiv.style.fontWeight = '500';
+  dateDiv.style.cssText = `
+    font-weight: 500;
+    color: #000;
+  `;
   const timeDiv = document.createElement('div');
   timeDiv.textContent = formatTime(game.time);
   timeDiv.style.cssText = `
     font-size: 12px;
-    color: #6c757d;
+    color: #000;
     margin-top: 2px;
   `;
   dateTimeCell.appendChild(dateDiv);
@@ -375,6 +382,7 @@ const createGameItem = (game: Game, index: number): HTMLTableRowElement => {
   locationCell.style.cssText = `
     padding: 12px 8px;
     font-size: 13px;
+    color: #000;
   `;
   locationCell.textContent = game.location;
   row.appendChild(locationCell);
