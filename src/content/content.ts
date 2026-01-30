@@ -7,16 +7,12 @@ import { generateICS, downloadICS } from '../lib/ics-generator';
  * Runs when the page is loaded
  */
 const init = async () => {
-  console.log('NY Urban Calendar Extension loaded');
-
   // Check if we're on a team details page.
   if (!isTeamDetailsPage()) {
-    console.log('Not a team details page, extension inactive');
     return;
   }
 
   // Wait for schedule to load (it's populated dynamically).
-  console.log('[NY Urban Extension] Waiting for schedule to load...');
   await waitForScheduleToLoad();
 
   // Inject the calendar button.
@@ -31,8 +27,6 @@ const init = async () => {
       return;
     }
 
-    console.log(`[NY Urban Extension] Found ${games.length} games`);
-
     // Show the game selection modal.
     showGameSelectionModal(games, (selectedGames) => {
       // Generate ICS file.
@@ -43,8 +37,6 @@ const init = async () => {
         const teamName = selectedGames[0]?.teamName || 'team';
         const filename = `${teamName.toLowerCase().replace(/\s+/g, '-')}-schedule.ics`;
         downloadICS(icsContent, filename);
-
-        console.log(`Downloaded ${selectedGames.length} games to ${filename}`);
       } else {
         alert('Error generating calendar file. Please try again.');
       }
@@ -62,7 +54,6 @@ const waitForScheduleToLoad = async (maxAttempts = 20): Promise<void> => {
       const rows = table.querySelectorAll('tbody tr');
       // Check if we have a table with multiple rows (more than just header).
       if (rows.length > 5) {
-        console.log(`[NY Urban Extension] Schedule loaded with ${rows.length} rows`);
         return;
       }
     }
@@ -71,7 +62,7 @@ const waitForScheduleToLoad = async (maxAttempts = 20): Promise<void> => {
     await new Promise((resolve) => setTimeout(resolve, 500));
   }
 
-  console.log('[NY Urban Extension] Timeout waiting for schedule, proceeding anyway');
+  // Timeout reached, proceed anyway.
 };
 
 /**

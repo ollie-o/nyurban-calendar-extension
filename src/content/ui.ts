@@ -5,11 +5,8 @@ import { Game } from '../lib/types';
  * @param onClick - Callback function when button is clicked
  */
 export const injectCalendarButton = (onClick: () => void): void => {
-  console.log('[Button] Attempting to inject calendar button');
-
   // Check if container already exists.
   if (document.getElementById('nyurban-calendar-container')) {
-    console.log('[Button] Container already exists, skipping injection');
     return;
   }
 
@@ -30,7 +27,6 @@ export const injectCalendarButton = (onClick: () => void): void => {
   const button = document.createElement('button');
   button.id = 'nyurban-calendar-btn';
   button.textContent = 'Select games to add to calendar';
-  console.log('[Button] Button element created');
   button.style.cssText = `
     display: block;
     margin: 0 auto;
@@ -66,28 +62,21 @@ export const injectCalendarButton = (onClick: () => void): void => {
 
   // Find the team name div and insert container below it.
   const findAndInsertContainer = (): boolean => {
-    console.log('[Button] Searching for team name div...');
-
     // Look for div with class "green_block team".
     const teamDiv = document.querySelector('div.green_block.team');
 
     if (teamDiv) {
-      console.log('[Button] Found team name div, inserting container after it');
       teamDiv.insertAdjacentElement('afterend', container);
       return true;
     }
 
-    console.log('[Button] Team name div not found');
     return false;
   };
 
   // Try to insert at the specific location, fallback to body if not found.
   if (!findAndInsertContainer()) {
-    console.log('[Button] Using fallback: inserting at beginning of body');
     document.body.insertBefore(container, document.body.firstChild);
   }
-
-  console.log('[Button] Button injection complete');
 };
 
 /**
