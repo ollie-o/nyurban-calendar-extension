@@ -92,17 +92,18 @@ const parseGameRow = (
     return ok(null);
   }
 
-  // Extract location from cell 2 (has full location name and address).
-  const cell2Text = cells[2]?.textContent?.trim() || '';
-  // Split by tabs and newlines, filter out empty strings and unwanted text.
-  const locationParts = cell2Text
-    .split(/[\t\n]+/)
-    .map((l) => l.trim())
-    .filter((l) => l && !l.includes('arrow') && !l.includes('Map') && !l.includes('Directions'));
-  // First part is the location name.
-  const location = locationParts[0] || '';
-  // Remaining parts (address, notes, etc.) go into details.
-  const locationDetails = locationParts.slice(1).join('\n');
+  // Extract location code from cell 2 (e.g., "LAG-F", "JJC-A").
+  // The code is in the direct link text, not in the popup.
+  const locationLink = cells[2]?.querySelector('a');
+  const locationCode = locationLink?.textContent?.trim() || '';
+
+  // Extract full location name from the popup (inside the <strong> tag).
+  const locationPopup = cells[2]?.querySelector('#popup strong');
+  const locationFullName = locationPopup?.textContent?.trim() || '';
+
+  // Set location to the code, and locationDetails to the full name.
+  const location = locationCode;
+  const locationDetails = locationFullName;
 
   // Extract opponent from cell 4.
   // Cell 4 contains opponent name followed by whitespace/tabs, then "arrow" and popup data.
