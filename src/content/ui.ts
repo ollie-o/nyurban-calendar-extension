@@ -7,28 +7,42 @@ import { Game } from '../lib/types';
 export const injectCalendarButton = (onClick: () => void): void => {
   console.log('[Button] Attempting to inject calendar button');
 
-  // Check if button already exists.
-  if (document.getElementById('nyurban-calendar-btn')) {
-    console.log('[Button] Button already exists, skipping injection');
+  // Check if container already exists.
+  if (document.getElementById('nyurban-calendar-container')) {
+    console.log('[Button] Container already exists, skipping injection');
     return;
   }
 
+  // Create white container div.
+  const container = document.createElement('div');
+  container.id = 'nyurban-calendar-container';
+  container.style.cssText = `
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 24px;
+    margin: 20px auto;
+    max-width: 900px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  `;
+
+  // Create button with blue background.
   const button = document.createElement('button');
   button.id = 'nyurban-calendar-btn';
   button.textContent = 'Select games to add to calendar';
   console.log('[Button] Button element created');
   button.style.cssText = `
     display: block;
-    margin: 20px auto;
+    margin: 0 auto;
     padding: 12px 32px;
-    background: white;
-    color: #333;
-    border: 2px solid #007bff;
+    background: #007bff;
+    color: white;
+    border: none;
     border-radius: 8px;
     font-size: 16px;
     font-weight: 600;
     cursor: pointer;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
     transition: all 0.2s;
     text-align: center;
   `;
@@ -37,28 +51,29 @@ export const injectCalendarButton = (onClick: () => void): void => {
 
   // Add hover effects.
   button.addEventListener('mouseenter', () => {
-    button.style.background = '#007bff';
-    button.style.color = 'white';
+    button.style.background = '#0056b3';
     button.style.transform = 'translateY(-2px)';
-    button.style.boxShadow = '0 4px 12px rgba(0, 123, 255, 0.3)';
+    button.style.boxShadow = '0 4px 12px rgba(0, 123, 255, 0.4)';
   });
   button.addEventListener('mouseleave', () => {
-    button.style.background = 'white';
-    button.style.color = '#333';
+    button.style.background = '#007bff';
     button.style.transform = 'translateY(0)';
-    button.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)';
+    button.style.boxShadow = '0 2px 8px rgba(0, 123, 255, 0.3)';
   });
 
-  // Find the team name div and insert button below it.
-  const findAndInsertButton = (): boolean => {
+  // Add button to container.
+  container.appendChild(button);
+
+  // Find the team name div and insert container below it.
+  const findAndInsertContainer = (): boolean => {
     console.log('[Button] Searching for team name div...');
 
     // Look for div with class "green_block team".
     const teamDiv = document.querySelector('div.green_block.team');
 
     if (teamDiv) {
-      console.log('[Button] Found team name div, inserting button after it');
-      teamDiv.insertAdjacentElement('afterend', button);
+      console.log('[Button] Found team name div, inserting container after it');
+      teamDiv.insertAdjacentElement('afterend', container);
       return true;
     }
 
@@ -67,9 +82,9 @@ export const injectCalendarButton = (onClick: () => void): void => {
   };
 
   // Try to insert at the specific location, fallback to body if not found.
-  if (!findAndInsertButton()) {
+  if (!findAndInsertContainer()) {
     console.log('[Button] Using fallback: inserting at beginning of body');
-    document.body.insertBefore(button, document.body.firstChild);
+    document.body.insertBefore(container, document.body.firstChild);
   }
 
   console.log('[Button] Button injection complete');
@@ -94,17 +109,13 @@ export const showGameSelectionModal = (
     return;
   }
 
-  // Create inline panel.
+  // Create inline panel (no extra styling, it's inside the white container).
   const panel = document.createElement('div');
   panel.id = panelId;
   panel.style.cssText = `
-    background: white;
-    border: 2px solid #e0e0e0;
-    border-radius: 8px;
-    padding: 24px;
-    margin: 20px auto;
-    max-width: 900px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 2px solid #e0e0e0;
   `;
 
   // Title.
@@ -122,10 +133,10 @@ export const showGameSelectionModal = (
   const gameList = createGameList(games, onDownload);
   panel.appendChild(gameList);
 
-  // Insert panel after the button.
-  const button = document.getElementById('nyurban-calendar-btn');
-  if (button) {
-    button.insertAdjacentElement('afterend', panel);
+  // Insert panel inside the container, after the button.
+  const container = document.getElementById('nyurban-calendar-container');
+  if (container) {
+    container.appendChild(panel);
   } else {
     document.body.appendChild(panel);
   }
