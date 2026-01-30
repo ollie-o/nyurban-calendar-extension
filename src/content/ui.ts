@@ -5,69 +5,78 @@ import { Game } from '../lib/types';
  * @param onClick - Callback function when button is clicked
  */
 export const injectCalendarButton = (onClick: () => void): void => {
+  console.log('[Button] Attempting to inject calendar button');
+
   // Check if button already exists.
   if (document.getElementById('nyurban-calendar-btn')) {
+    console.log('[Button] Button already exists, skipping injection');
     return;
   }
 
   const button = document.createElement('button');
   button.id = 'nyurban-calendar-btn';
   button.textContent = 'Select games to add to calendar';
+  console.log('[Button] Button element created');
   button.style.cssText = `
     display: block;
-    margin: 20px 0;
-    padding: 12px 24px;
-    background: #007bff;
-    color: white;
-    border: none;
-    border-radius: 6px;
+    margin: 20px auto;
+    padding: 12px 32px;
+    background: white;
+    color: #333;
+    border: 2px solid #007bff;
+    border-radius: 8px;
     font-size: 16px;
     font-weight: 600;
     cursor: pointer;
-    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
-    transition: background 0.2s, transform 0.1s;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s;
+    text-align: center;
   `;
 
   button.addEventListener('click', onClick);
 
   // Add hover effects.
   button.addEventListener('mouseenter', () => {
-    button.style.background = '#0056b3';
-    button.style.transform = 'translateY(-1px)';
-    button.style.boxShadow = '0 4px 12px rgba(0, 123, 255, 0.4)';
+    button.style.background = '#007bff';
+    button.style.color = 'white';
+    button.style.transform = 'translateY(-2px)';
+    button.style.boxShadow = '0 4px 12px rgba(0, 123, 255, 0.3)';
   });
   button.addEventListener('mouseleave', () => {
-    button.style.background = '#007bff';
+    button.style.background = 'white';
+    button.style.color = '#333';
     button.style.transform = 'translateY(0)';
-    button.style.boxShadow = '0 2px 8px rgba(0, 123, 255, 0.3)';
+    button.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)';
   });
 
-  // Find the spectators warning text and insert button below it.
+  // Find the team name div and insert button below it.
   const findAndInsertButton = (): boolean => {
-    const allElements = Array.from(document.querySelectorAll('*'));
-    for (const element of allElements) {
-      if (element.textContent && element.textContent.includes('ABSOLUTELY NO SPECTATORS')) {
-        // Insert button after this element's parent or the element itself.
-        const targetElement =
-          element.tagName === 'P' || element.tagName === 'DIV' ? element : element.parentElement;
-        if (targetElement) {
-          targetElement.insertAdjacentElement('afterend', button);
-          return true;
-        }
-      }
+    console.log('[Button] Searching for team name div...');
+
+    // Look for div with class "green_block team".
+    const teamDiv = document.querySelector('div.green_block.team');
+
+    if (teamDiv) {
+      console.log('[Button] Found team name div, inserting button after it');
+      teamDiv.insertAdjacentElement('afterend', button);
+      return true;
     }
+
+    console.log('[Button] Team name div not found');
     return false;
   };
 
   // Try to insert at the specific location, fallback to body if not found.
   if (!findAndInsertButton()) {
-    // Fallback: insert at the beginning of the body.
+    console.log('[Button] Using fallback: inserting at beginning of body');
     document.body.insertBefore(button, document.body.firstChild);
   }
+
+  console.log('[Button] Button injection complete');
 };
 
 /**
- * Creates and displays a modal for game selection
+ * Creates and toggles an inline game selection panel
  * @param games - Array of games to display
  * @param onDownload - Callback when download button is clicked, receives selected games
  */
@@ -75,113 +84,202 @@ export const showGameSelectionModal = (
   games: Game[],
   onDownload: (selectedGames: Game[]) => void
 ): void => {
-  // Remove existing modal if present.
-  const existingModal = document.getElementById('nyurban-calendar-modal');
-  if (existingModal) {
-    existingModal.remove();
+  const panelId = 'nyurban-calendar-panel';
+  const existingPanel = document.getElementById(panelId);
+
+  // If panel exists, toggle visibility.
+  if (existingPanel) {
+    const isHidden = existingPanel.style.display === 'none';
+    existingPanel.style.display = isHidden ? 'block' : 'none';
+    return;
   }
 
-  // Create modal overlay.
-  const overlay = document.createElement('div');
-  overlay.id = 'nyurban-calendar-modal';
-  overlay.style.cssText = `
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 10001;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(0, 0, 0, 0.5);
-  `;
-
-  // Create modal content.
-  const modal = document.createElement('div');
-  modal.style.cssText = `
+  // Create inline panel.
+  const panel = document.createElement('div');
+  panel.id = panelId;
+  panel.style.cssText = `
     background: white;
-    color: black;
-    padding: 20px;
-    max-width: 600px;
-    max-height: 80vh;
-    overflow-y: auto;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 24px;
+    margin: 20px auto;
+    max-width: 900px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   `;
 
   // Title.
-  const title = document.createElement('h2');
-  title.textContent = 'Select Games to Add';
-  modal.appendChild(title);
+  const title = document.createElement('h3');
+  title.textContent = 'Select Games to Add to Calendar';
+  title.style.cssText = `
+    margin: 0 0 20px 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: #333;
+  `;
+  panel.appendChild(title);
 
   // Game list.
-  const gameList = createGameList(games);
-  modal.appendChild(gameList);
+  const gameList = createGameList(games, onDownload);
+  panel.appendChild(gameList);
 
-  // Buttons.
-  const buttonContainer = document.createElement('div');
-
-  const cancelBtn = document.createElement('button');
-  cancelBtn.textContent = 'Cancel';
-  cancelBtn.addEventListener('click', () => overlay.remove());
-
-  const downloadBtn = document.createElement('button');
-  downloadBtn.textContent = 'Download ICS';
-  downloadBtn.addEventListener('click', () => {
-    const selectedGames = getSelectedGames(games);
-    if (selectedGames.length > 0) {
-      onDownload(selectedGames);
-      overlay.remove();
-    } else {
-      alert('Please select at least one game');
-    }
-  });
-
-  buttonContainer.appendChild(cancelBtn);
-  buttonContainer.appendChild(downloadBtn);
-  modal.appendChild(buttonContainer);
-
-  overlay.appendChild(modal);
-  document.body.appendChild(overlay);
-
-  // Close on overlay click.
-  overlay.addEventListener('click', (e) => {
-    if (e.target === overlay) {
-      overlay.remove();
-    }
-  });
+  // Insert panel after the button.
+  const button = document.getElementById('nyurban-calendar-btn');
+  if (button) {
+    button.insertAdjacentElement('afterend', panel);
+  } else {
+    document.body.appendChild(panel);
+  }
 };
 
 /**
  * Creates the game list with checkboxes
  */
-const createGameList = (games: Game[]): HTMLElement => {
+const createGameList = (
+  games: Game[],
+  onDownload: (selectedGames: Game[]) => void
+): HTMLElement => {
   const container = document.createElement('div');
 
   if (games.length === 0) {
     container.textContent = 'No games found on this page.';
+    container.style.cssText = `
+      padding: 20px;
+      text-align: center;
+      color: #666;
+    `;
     return container;
   }
 
+  // Control buttons row.
+  const controlsRow = document.createElement('div');
+  controlsRow.style.cssText = `
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid #e0e0e0;
+  `;
+
   // Select All / Deselect All buttons.
   const selectAllContainer = document.createElement('div');
+  selectAllContainer.style.cssText = `
+    display: flex;
+    gap: 8px;
+  `;
 
-  const selectAllBtn = document.createElement('button');
-  selectAllBtn.textContent = 'Select All';
-  selectAllBtn.addEventListener('click', () => toggleAllCheckboxes(true));
+  const createControlButton = (text: string, onClick: () => void): HTMLButtonElement => {
+    const btn = document.createElement('button');
+    btn.textContent = text;
+    btn.style.cssText = `
+      padding: 8px 16px;
+      border: 1px solid #ddd;
+      background: white;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.2s;
+    `;
+    btn.addEventListener('click', onClick);
+    btn.addEventListener('mouseenter', () => {
+      btn.style.background = '#f5f5f5';
+      btn.style.borderColor = '#007bff';
+    });
+    btn.addEventListener('mouseleave', () => {
+      btn.style.background = 'white';
+      btn.style.borderColor = '#ddd';
+    });
+    return btn;
+  };
 
-  const deselectAllBtn = document.createElement('button');
-  deselectAllBtn.textContent = 'Deselect All';
-  deselectAllBtn.addEventListener('click', () => toggleAllCheckboxes(false));
+  const selectAllBtn = createControlButton('Select All', () => toggleAllCheckboxes(true));
+  const deselectAllBtn = createControlButton('Deselect All', () => toggleAllCheckboxes(false));
 
   selectAllContainer.appendChild(selectAllBtn);
   selectAllContainer.appendChild(deselectAllBtn);
-  container.appendChild(selectAllContainer);
+  controlsRow.appendChild(selectAllContainer);
 
-  // Game items.
-  games.forEach((game, index) => {
-    const item = createGameItem(game, index);
-    container.appendChild(item);
+  // Download button.
+  const downloadBtn = document.createElement('button');
+  downloadBtn.textContent = 'Download Calendar File (.ics)';
+  downloadBtn.style.cssText = `
+    padding: 10px 24px;
+    border: none;
+    background: #28a745;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 600;
+    transition: all 0.2s;
+  `;
+  downloadBtn.addEventListener('click', () => {
+    const selectedGames = getSelectedGames(games);
+    if (selectedGames.length > 0) {
+      onDownload(selectedGames);
+    } else {
+      alert('Please select at least one game');
+    }
   });
+  downloadBtn.addEventListener('mouseenter', () => {
+    downloadBtn.style.background = '#218838';
+    downloadBtn.style.transform = 'translateY(-1px)';
+    downloadBtn.style.boxShadow = '0 4px 8px rgba(40, 167, 69, 0.3)';
+  });
+  downloadBtn.addEventListener('mouseleave', () => {
+    downloadBtn.style.background = '#28a745';
+    downloadBtn.style.transform = 'translateY(0)';
+    downloadBtn.style.boxShadow = 'none';
+  });
+
+  controlsRow.appendChild(downloadBtn);
+  container.appendChild(controlsRow);
+
+  // Create table.
+  const table = document.createElement('table');
+  table.style.cssText = `
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  `;
+
+  // Table header.
+  const thead = document.createElement('thead');
+  const headerRow = document.createElement('tr');
+  headerRow.style.cssText = `
+    background: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+  `;
+
+  const headers = ['', 'Game', 'Opponent', 'Date & Time', 'Location'];
+  headers.forEach((headerText) => {
+    const th = document.createElement('th');
+    th.textContent = headerText;
+    th.style.cssText = `
+      padding: 12px 8px;
+      text-align: left;
+      font-weight: 600;
+      color: #495057;
+    `;
+    if (headerText === '') {
+      th.style.width = '40px';
+      th.style.textAlign = 'center';
+    }
+    headerRow.appendChild(th);
+  });
+
+  thead.appendChild(headerRow);
+  table.appendChild(thead);
+
+  // Table body.
+  const tbody = document.createElement('tbody');
+  games.forEach((game, index) => {
+    const row = createGameItem(game, index);
+    tbody.appendChild(row);
+  });
+
+  table.appendChild(tbody);
+  container.appendChild(table);
 
   return container;
 };
@@ -189,23 +287,95 @@ const createGameList = (games: Game[]): HTMLElement => {
 /**
  * Creates a single game list item with checkbox
  */
-const createGameItem = (game: Game, index: number): HTMLElement => {
-  const item = document.createElement('label');
-  item.style.display = 'block';
+const createGameItem = (game: Game, index: number): HTMLTableRowElement => {
+  const row = document.createElement('tr');
+  row.style.cssText = `
+    border-bottom: 1px solid #e9ecef;
+    cursor: pointer;
+  `;
+
+  // Hover effect.
+  row.addEventListener('mouseenter', () => {
+    row.style.background = '#f8f9fa';
+  });
+  row.addEventListener('mouseleave', () => {
+    row.style.background = 'white';
+  });
+
+  // Checkbox cell.
+  const checkboxCell = document.createElement('td');
+  checkboxCell.style.cssText = `
+    padding: 12px 8px;
+    text-align: center;
+  `;
 
   const checkbox = document.createElement('input');
   checkbox.type = 'checkbox';
   checkbox.checked = true;
   checkbox.className = 'game-checkbox';
   checkbox.dataset.gameIndex = String(index);
+  checkbox.style.cssText = `
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+  `;
 
-  const info = document.createElement('span');
-  info.textContent = `${game.teamName} game ${game.gameNumber} vs. ${game.opponent} - ${formatDate(game.date)} at ${formatTime(game.time)} • ${game.location}`;
+  checkboxCell.appendChild(checkbox);
+  row.appendChild(checkboxCell);
 
-  item.appendChild(checkbox);
-  item.appendChild(info);
+  // Game number cell.
+  const gameCell = document.createElement('td');
+  gameCell.style.cssText = `
+    padding: 12px 8px;
+    font-weight: 500;
+  `;
+  gameCell.textContent = `#${game.gameNumber}`;
+  row.appendChild(gameCell);
 
-  return item;
+  // Opponent cell.
+  const opponentCell = document.createElement('td');
+  opponentCell.style.cssText = `
+    padding: 12px 8px;
+  `;
+  opponentCell.textContent = game.opponent;
+  row.appendChild(opponentCell);
+
+  // Date & time cell.
+  const dateTimeCell = document.createElement('td');
+  dateTimeCell.style.cssText = `
+    padding: 12px 8px;
+  `;
+  const dateDiv = document.createElement('div');
+  dateDiv.textContent = formatDate(game.date);
+  dateDiv.style.fontWeight = '500';
+  const timeDiv = document.createElement('div');
+  timeDiv.textContent = formatTime(game.time);
+  timeDiv.style.cssText = `
+    font-size: 12px;
+    color: #6c757d;
+    margin-top: 2px;
+  `;
+  dateTimeCell.appendChild(dateDiv);
+  dateTimeCell.appendChild(timeDiv);
+  row.appendChild(dateTimeCell);
+
+  // Location cell.
+  const locationCell = document.createElement('td');
+  locationCell.style.cssText = `
+    padding: 12px 8px;
+    font-size: 13px;
+  `;
+  locationCell.textContent = game.location;
+  row.appendChild(locationCell);
+
+  // Toggle checkbox on row click.
+  row.addEventListener('click', (e) => {
+    if (e.target !== checkbox) {
+      checkbox.checked = !checkbox.checked;
+    }
+  });
+
+  return row;
 };
 
 /**
