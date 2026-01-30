@@ -24,14 +24,16 @@ export const injectGamesList = (
     margin: 20px auto;
     max-width: 900px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    font-family: Arial, sans-serif;
+    font-size: 14px;
   `;
 
   const title = document.createElement('h3');
   title.textContent = 'Select games to add to calendar';
   title.style.cssText = `
     margin: 0 0 20px 0;
-    font-size: 20px;
-    font-weight: 600;
+    font-size: 14px;
+    font-weight: bold;
     color: #333;
   `;
   container.appendChild(title);
@@ -81,7 +83,6 @@ const createGameList = (
   table.style.cssText = `
     width: 100%;
     border-collapse: collapse;
-    font-size: 14px;
     color: #000;
   `;
 
@@ -99,7 +100,7 @@ const createGameList = (
     th.style.cssText = `
       padding: 12px 8px;
       text-align: left;
-      font-weight: 600;
+      font-weight: bold;
       color: #000;
     `;
     if (headerText === '') {
@@ -170,7 +171,6 @@ const createGameItem = (game: Game, index: number): HTMLTableRowElement => {
   const gameCell = document.createElement('td');
   gameCell.style.cssText = `
     padding: 12px 8px;
-    font-weight: 500;
     color: #000;
   `;
   gameCell.textContent = `#${game.gameNumber}`;
@@ -191,13 +191,11 @@ const createGameItem = (game: Game, index: number): HTMLTableRowElement => {
   const dateDiv = document.createElement('div');
   dateDiv.textContent = formatDate(game.date);
   dateDiv.style.cssText = `
-    font-weight: 500;
     color: #000;
   `;
   const timeDiv = document.createElement('div');
   timeDiv.textContent = formatTime(game.date);
   timeDiv.style.cssText = `
-    font-size: 12px;
     color: #000;
     margin-top: 2px;
   `;
@@ -208,7 +206,6 @@ const createGameItem = (game: Game, index: number): HTMLTableRowElement => {
   const locationCell = document.createElement('td');
   locationCell.style.cssText = `
     padding: 12px 8px;
-    font-size: 13px;
     color: #000;
   `;
   locationCell.textContent = game.location;
@@ -217,7 +214,6 @@ const createGameItem = (game: Game, index: number): HTMLTableRowElement => {
   const detailsCell = document.createElement('td');
   detailsCell.style.cssText = `
     padding: 12px 8px;
-    font-size: 12px;
     color: #555;
     max-width: 200px;
     white-space: pre-wrap;

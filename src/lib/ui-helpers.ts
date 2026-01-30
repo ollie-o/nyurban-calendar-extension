@@ -10,7 +10,9 @@ export const createControlButton = (text: string, onClick: () => void): HTMLButt
     background: white;
     border-radius: 4px;
     cursor: pointer;
+    font-family: Arial, sans-serif;
     font-size: 14px;
+    font-weight: bold;
     transition: all 0.2s;
   `;
   btn.addEventListener('click', onClick);
@@ -39,8 +41,9 @@ export const createDownloadButton = (onClick: () => void): HTMLButtonElement => 
     color: white;
     border-radius: 6px;
     cursor: pointer;
-    font-size: 15px;
-    font-weight: 600;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    font-weight: bold;
     transition: all 0.2s;
   `;
   downloadBtn.addEventListener('click', onClick);
@@ -103,6 +106,8 @@ export const createEmptyState = (): HTMLElement => {
     padding: 20px;
     text-align: center;
     color: #666;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
   `;
   return container;
 };
