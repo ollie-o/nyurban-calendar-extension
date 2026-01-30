@@ -3,9 +3,6 @@ import { Result, ok, err } from 'neverthrow';
 import { Game } from './types';
 import { CONFIG } from './constants';
 
-/**
- * Error type for ICS generation failures.
- */
 export class ICSGenerationError extends Error {
   constructor(
     message: string,
@@ -16,13 +13,7 @@ export class ICSGenerationError extends Error {
   }
 }
 
-/**
- * Generates an ICS file content from an array of games
- * @param games - Array of Game objects to convert
- * @returns Result containing ICS file content or ICSGenerationError
- */
 export const generateICS = (games: Game[]): Result<string, ICSGenerationError> => {
-  // Validate input.
   if (!Array.isArray(games)) {
     return err(new ICSGenerationError('Games must be an array'));
   }
@@ -31,7 +22,6 @@ export const generateICS = (games: Game[]): Result<string, ICSGenerationError> =
     return err(new ICSGenerationError('Cannot generate ICS file: no games provided'));
   }
 
-  // Convert Game objects to ICS EventAttributes.
   const eventsResult = convertGamesToEvents(games);
   if (eventsResult.isErr()) {
     return err(eventsResult.error);
@@ -39,7 +29,6 @@ export const generateICS = (games: Game[]): Result<string, ICSGenerationError> =
 
   const events = eventsResult.value;
 
-  // Generate ICS content.
   const { error: icsError, value } = createEvents(events);
 
   if (icsError) {
@@ -58,11 +47,6 @@ export const generateICS = (games: Game[]): Result<string, ICSGenerationError> =
   return ok(value);
 };
 
-/**
- * Converts Game objects to ICS EventAttributes.
- * @param games - Array of Game objects
- * @returns Result containing EventAttributes array or ICSGenerationError
- */
 const convertGamesToEvents = (games: Game[]): Result<EventAttributes[], ICSGenerationError> => {
   const events: EventAttributes[] = [];
 
@@ -80,26 +64,18 @@ const convertGamesToEvents = (games: Game[]): Result<EventAttributes[], ICSGener
   return ok(events);
 };
 
-/**
- * Converts a single Game to an ICS EventAttributes object.
- * @param game - Game object to convert
- * @param index - Game index for error messages
- * @returns Result containing EventAttributes or ICSGenerationError
- */
 const convertGameToEvent = (
   game: Game,
   index: number
 ): Result<EventAttributes, ICSGenerationError> => {
-  // Parse ISO8601 date (e.g., "2026-01-14T18:30:00-05:00").
   const dateObj = new Date(game.date);
 
-  // Validate date.
   if (isNaN(dateObj.getTime())) {
     return err(new ICSGenerationError(`Invalid date for game ${index + 1}: ${game.date}`));
   }
 
   const year = dateObj.getFullYear();
-  const month = dateObj.getMonth() + 1; // JavaScript months are 0-indexed
+  const month = dateObj.getMonth() + 1;
   const day = dateObj.getDate();
   const hour = dateObj.getHours();
   const minute = dateObj.getMinutes();
@@ -114,15 +90,9 @@ const convertGameToEvent = (
     description: game.locationDetails,
     status: 'CONFIRMED',
     busyStatus: 'BUSY',
-    // Note: ics library handles timezone through start time array format.
   });
 };
 
-/**
- * Triggers a browser download of the ICS file
- * @param icsContent - The ICS file content string
- * @param filename - The filename for the download (default: "nyurban-schedule.ics")
- */
 export const downloadICS = (icsContent: string, filename = 'nyurban-schedule.ics'): void => {
   const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
   const url = URL.createObjectURL(blob);
@@ -135,7 +105,6 @@ export const downloadICS = (icsContent: string, filename = 'nyurban-schedule.ics
   document.body.appendChild(link);
   link.click();
 
-  // Clean up.
   document.body.removeChild(link);
   URL.revokeObjectURL(url);
 };

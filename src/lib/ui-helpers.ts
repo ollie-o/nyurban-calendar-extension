@@ -1,13 +1,3 @@
-/**
- * UI helper functions for creating styled elements.
- */
-
-/**
- * Creates a styled control button (Select All, Deselect All, etc.)
- * @param text - Button text
- * @param onClick - Click handler
- * @returns Styled button element
- */
 export const createControlButton = (text: string, onClick: () => void): HTMLButtonElement => {
   const btn = document.createElement('button');
   btn.textContent = text;
@@ -32,11 +22,6 @@ export const createControlButton = (text: string, onClick: () => void): HTMLButt
   return btn;
 };
 
-/**
- * Creates the download button with proper styling and hover effects.
- * @param onClick - Click handler
- * @returns Styled download button
- */
 export const createDownloadButton = (onClick: () => void): HTMLButtonElement => {
   const downloadBtn = document.createElement('button');
   downloadBtn.textContent = 'Download calendar file (.ics)';
@@ -66,12 +51,6 @@ export const createDownloadButton = (onClick: () => void): HTMLButtonElement => 
   return downloadBtn;
 };
 
-/**
- * Creates the controls row with select buttons and download button.
- * @param onDownload - Download button click handler
- * @param toggleAllCheckboxes - Function to toggle all checkboxes
- * @returns Controls row element
- */
 export const createControlsRow = (
   onDownload: () => void,
   toggleAllCheckboxes: (checked: boolean) => void
@@ -86,7 +65,6 @@ export const createControlsRow = (
     border-bottom: 2px solid #e0e0e0;
   `;
 
-  // Select all / deselect all buttons.
   const selectAllContainer = document.createElement('div');
   selectAllContainer.style.cssText = `
     display: flex;
@@ -100,17 +78,12 @@ export const createControlsRow = (
   selectAllContainer.appendChild(deselectAllBtn);
   controlsRow.appendChild(selectAllContainer);
 
-  // Download button.
   const downloadBtn = createDownloadButton(onDownload);
   controlsRow.appendChild(downloadBtn);
 
   return controlsRow;
 };
 
-/**
- * Creates an empty state message when no games are found.
- * @returns Empty state element
- */
 export const createEmptyState = (): HTMLElement => {
   const container = document.createElement('div');
   container.textContent = 'No games found on this page.';

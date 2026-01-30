@@ -3,21 +3,14 @@ import { UI_IDS, SELECTORS } from '../lib/constants';
 import { createControlsRow, createEmptyState } from '../lib/ui-helpers';
 import { formatDate, formatTime } from '../lib/formatters';
 
-/**
- * Creates and injects the game selection panel on the page
- * @param games - Array of games to display
- * @param onDownload - Callback when download button is clicked, receives selected games
- */
 export const injectGamesList = (
   games: Game[],
   onDownload: (selectedGames: Game[]) => void
 ): void => {
-  // Check if container already exists.
   if (document.getElementById(UI_IDS.CONTAINER)) {
     return;
   }
 
-  // Create white container div.
   const container = document.createElement('div');
   container.id = UI_IDS.CONTAINER;
   container.style.cssText = `
@@ -30,7 +23,6 @@ export const injectGamesList = (
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   `;
 
-  // Title.
   const title = document.createElement('h3');
   title.textContent = 'Select games to add to calendar';
   title.style.cssText = `
@@ -41,13 +33,10 @@ export const injectGamesList = (
   `;
   container.appendChild(title);
 
-  // Game list.
   const gameList = createGameList(games, onDownload);
   container.appendChild(gameList);
 
-  // Find the team name div and insert container below it.
   const findAndInsertContainer = (): boolean => {
-    // Look for div with class "green_block team".
     const teamDiv = document.querySelector(SELECTORS.TEAM_DIV);
 
     if (teamDiv) {
@@ -58,15 +47,11 @@ export const injectGamesList = (
     return false;
   };
 
-  // Try to insert at the specific location, fallback to body if not found.
   if (!findAndInsertContainer()) {
     document.body.insertBefore(container, document.body.firstChild);
   }
 };
 
-/**
- * Creates the game list with checkboxes
- */
 const createGameList = (
   games: Game[],
   onDownload: (selectedGames: Game[]) => void
@@ -77,7 +62,6 @@ const createGameList = (
     return createEmptyState();
   }
 
-  // Add download handler with validation.
   const handleDownload = () => {
     const selectedGames = getSelectedGames(games);
     if (selectedGames.length === 0) {
@@ -87,11 +71,9 @@ const createGameList = (
     onDownload(selectedGames);
   };
 
-  // Control buttons row.
   const controlsRow = createControlsRow(handleDownload, toggleAllCheckboxes);
   container.appendChild(controlsRow);
 
-  // Create table.
   const table = document.createElement('table');
   table.style.cssText = `
     width: 100%;
@@ -100,7 +82,6 @@ const createGameList = (
     color: #000;
   `;
 
-  // Table header.
   const thead = document.createElement('thead');
   const headerRow = document.createElement('tr');
   headerRow.style.cssText = `
@@ -128,7 +109,6 @@ const createGameList = (
   thead.appendChild(headerRow);
   table.appendChild(thead);
 
-  // Table body.
   const tbody = document.createElement('tbody');
   games.forEach((game, index) => {
     const row = createGameItem(game, index);
@@ -141,9 +121,6 @@ const createGameList = (
   return container;
 };
 
-/**
- * Creates a single game list item with checkbox
- */
 const createGameItem = (game: Game, index: number): HTMLTableRowElement => {
   const row = document.createElement('tr');
   row.setAttribute('role', 'row');
@@ -158,7 +135,6 @@ const createGameItem = (game: Game, index: number): HTMLTableRowElement => {
     color: #000;
   `;
 
-  // Hover effect.
   row.addEventListener('mouseenter', () => {
     row.style.background = '#f8f9fa';
   });
@@ -166,7 +142,6 @@ const createGameItem = (game: Game, index: number): HTMLTableRowElement => {
     row.style.background = 'white';
   });
 
-  // Checkbox cell.
   const checkboxCell = document.createElement('td');
   checkboxCell.style.cssText = `
     padding: 12px 8px;
@@ -189,7 +164,6 @@ const createGameItem = (game: Game, index: number): HTMLTableRowElement => {
   checkboxCell.appendChild(checkbox);
   row.appendChild(checkboxCell);
 
-  // Game number cell.
   const gameCell = document.createElement('td');
   gameCell.style.cssText = `
     padding: 12px 8px;
@@ -199,7 +173,6 @@ const createGameItem = (game: Game, index: number): HTMLTableRowElement => {
   gameCell.textContent = `#${game.gameNumber}`;
   row.appendChild(gameCell);
 
-  // Opponent cell.
   const opponentCell = document.createElement('td');
   opponentCell.style.cssText = `
     padding: 12px 8px;
@@ -208,7 +181,6 @@ const createGameItem = (game: Game, index: number): HTMLTableRowElement => {
   opponentCell.textContent = game.opponent;
   row.appendChild(opponentCell);
 
-  // Date & time cell.
   const dateTimeCell = document.createElement('td');
   dateTimeCell.style.cssText = `
     padding: 12px 8px;
@@ -230,7 +202,6 @@ const createGameItem = (game: Game, index: number): HTMLTableRowElement => {
   dateTimeCell.appendChild(timeDiv);
   row.appendChild(dateTimeCell);
 
-  // Location cell.
   const locationCell = document.createElement('td');
   locationCell.style.cssText = `
     padding: 12px 8px;
@@ -240,7 +211,6 @@ const createGameItem = (game: Game, index: number): HTMLTableRowElement => {
   locationCell.textContent = game.location;
   row.appendChild(locationCell);
 
-  // Details cell.
   const detailsCell = document.createElement('td');
   detailsCell.style.cssText = `
     padding: 12px 8px;
@@ -252,7 +222,6 @@ const createGameItem = (game: Game, index: number): HTMLTableRowElement => {
   detailsCell.textContent = game.locationDetails || '';
   row.appendChild(detailsCell);
 
-  // Toggle checkbox on row click or keyboard interaction.
   row.addEventListener('click', (e) => {
     if (e.target !== checkbox) {
       checkbox.checked = !checkbox.checked;
@@ -269,11 +238,6 @@ const createGameItem = (game: Game, index: number): HTMLTableRowElement => {
   return row;
 };
 
-/**
- * Gets the selected games based on checkboxes
- * @param games - All available games
- * @returns Array of selected games
- */
 const getSelectedGames = (games: Game[]): Game[] => {
   const checkboxes = document.querySelectorAll<HTMLInputElement>(
     `.${UI_IDS.GAME_CHECKBOX}:checked`
@@ -286,10 +250,6 @@ const getSelectedGames = (games: Game[]): Game[] => {
     .filter((game): game is Game => Boolean(game));
 };
 
-/**
- * Toggles all checkboxes
- * @param checked - True to check all, false to uncheck all
- */
 const toggleAllCheckboxes = (checked: boolean): void => {
   const checkboxes = document.querySelectorAll<HTMLInputElement>(`.${UI_IDS.GAME_CHECKBOX}`);
   checkboxes.forEach((cb) => {
