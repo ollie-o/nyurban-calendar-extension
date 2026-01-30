@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "NY Urban Calendar Extension",
+  "version": "0.1.0",
+  "description": "Automate adding NY Urban league games to Google Calendar",
+  "permissions": ["activeTab", "downloads"],
+  "host_permissions": ["https://www.nyurban.com/team-details/*"],
+  "content_scripts": [
+    {
+      "matches": ["https://www.nyurban.com/team-details/*"],
+      "js": ["src/content/content.ts"],
+      "run_at": "document_idle"
+    }
+  ],
+  "icons": {
+    "16": "icons/icon16.svg",
+    "48": "icons/icon48.svg",
+    "128": "icons/icon128.svg"
+  },
+  "action": {
+    "default_title": "NY Urban Calendar"
+  }
+}
