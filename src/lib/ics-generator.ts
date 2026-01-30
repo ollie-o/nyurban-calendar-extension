@@ -1,6 +1,6 @@
 import { createEvents, EventAttributes } from 'ics';
 import { Result, ok, err } from 'neverthrow';
-import { Game, ICSOptions } from './types';
+import { Game } from './types';
 import { CONFIG } from './constants';
 
 /**
@@ -19,13 +19,9 @@ export class ICSGenerationError extends Error {
 /**
  * Generates an ICS file content from an array of games
  * @param games - Array of Game objects to convert
- * @param options - Optional ICS generation options
  * @returns Result containing ICS file content or ICSGenerationError
  */
-export const generateICS = (
-  games: Game[],
-  _options: ICSOptions = {}
-): Result<string, ICSGenerationError> => {
+export const generateICS = (games: Game[]): Result<string, ICSGenerationError> => {
   // Validate input.
   if (!Array.isArray(games)) {
     return err(new ICSGenerationError('Games must be an array'));
@@ -34,9 +30,6 @@ export const generateICS = (
   if (games.length === 0) {
     return err(new ICSGenerationError('Cannot generate ICS file: no games provided'));
   }
-
-  // Note: timezone and prodId options are currently unused as the ics library
-  // Doesn't support these options in the way we need. Keeping for future enhancement.
 
   // Convert Game objects to ICS EventAttributes.
   const eventsResult = convertGamesToEvents(games);

@@ -23,14 +23,3 @@ export interface Game {
   /** Game duration in minutes (default: 60) */
   duration?: number;
 }
-
-/**
- * Options for ICS file generation
- */
-export interface ICSOptions {
-  /** Timezone for events (default: "America/New_York") */
-  timezone?: string;
-
-  /** Product identifier for the calendar */
-  prodId?: string;
-}

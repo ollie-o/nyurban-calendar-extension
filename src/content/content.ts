@@ -2,7 +2,7 @@ import { Result, ok, err } from 'neverthrow';
 import { parseSchedule } from './parser';
 import { injectGamesList } from './ui';
 import { generateICS, downloadICS } from '../lib/ics-generator';
-import { CONFIG, URL_PATTERNS } from '../lib/constants';
+import { CONFIG, URL_PATTERNS, SELECTORS } from '../lib/constants';
 import { sanitizeFilename } from '../lib/formatters';
 
 /**
@@ -119,7 +119,7 @@ const injectEmptyMessage = (): void => {
   messageDiv.textContent = 'No games found on this page.';
 
   // Find the team div and insert below it.
-  const teamDiv = document.querySelector('div.green_block.team');
+  const teamDiv = document.querySelector(SELECTORS.TEAM_DIV);
   if (teamDiv && teamDiv.parentElement) {
     teamDiv.parentElement.insertBefore(messageDiv, teamDiv.nextSibling);
   } else {

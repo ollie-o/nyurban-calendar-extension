@@ -38,15 +38,6 @@ export const UI_IDS = {
   GAME_CHECKBOX: 'game-checkbox',
 } as const;
 
-export const UI_STYLES = {
-  CONTAINER_PADDING: '24px',
-  CONTAINER_MAX_WIDTH: '900px',
-  CONTAINER_MARGIN: '20px auto',
-  BUTTON_PADDING: '10px 24px',
-  BUTTON_BORDER_RADIUS: '6px',
-  TABLE_FONT_SIZE: '14px',
-} as const;
-
 export const URL_PATTERNS = {
   /** Team details page path pattern */
   TEAM_DETAILS_PATH: '/team-details/',
