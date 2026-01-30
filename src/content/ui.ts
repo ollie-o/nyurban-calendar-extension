@@ -1,10 +1,14 @@
 import { Game } from '../lib/types';
 
 /**
- * Creates and injects the "Add to Calendar" button on the page
- * @param onClick - Callback function when button is clicked
+ * Creates and injects the game selection panel on the page
+ * @param games - Array of games to display
+ * @param onDownload - Callback when download button is clicked, receives selected games
  */
-export const injectCalendarButton = (onClick: () => void): void => {
+export const injectGamesList = (
+  games: Game[],
+  onDownload: (selectedGames: Game[]) => void
+): void => {
   // Check if container already exists.
   if (document.getElementById('nyurban-calendar-container')) {
     return;
@@ -23,42 +27,20 @@ export const injectCalendarButton = (onClick: () => void): void => {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   `;
 
-  // Create button with blue background.
-  const button = document.createElement('button');
-  button.id = 'nyurban-calendar-btn';
-  button.textContent = 'Select games to add to calendar';
-  button.style.cssText = `
-    display: block;
-    margin: 0 auto;
-    padding: 12px 32px;
-    background: #007bff;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 16px;
+  // Title.
+  const title = document.createElement('h3');
+  title.textContent = 'Select games to add to calendar';
+  title.style.cssText = `
+    margin: 0 0 20px 0;
+    font-size: 20px;
     font-weight: 600;
-    cursor: pointer;
-    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
-    transition: all 0.2s;
-    text-align: center;
+    color: #333;
   `;
+  container.appendChild(title);
 
-  button.addEventListener('click', onClick);
-
-  // Add hover effects.
-  button.addEventListener('mouseenter', () => {
-    button.style.background = '#0056b3';
-    button.style.transform = 'translateY(-2px)';
-    button.style.boxShadow = '0 4px 12px rgba(0, 123, 255, 0.4)';
-  });
-  button.addEventListener('mouseleave', () => {
-    button.style.background = '#007bff';
-    button.style.transform = 'translateY(0)';
-    button.style.boxShadow = '0 2px 8px rgba(0, 123, 255, 0.3)';
-  });
-
-  // Add button to container.
-  container.appendChild(button);
+  // Game list.
+  const gameList = createGameList(games, onDownload);
+  container.appendChild(gameList);
 
   // Find the team name div and insert container below it.
   const findAndInsertContainer = (): boolean => {
@@ -76,58 +58,6 @@ export const injectCalendarButton = (onClick: () => void): void => {
   // Try to insert at the specific location, fallback to body if not found.
   if (!findAndInsertContainer()) {
     document.body.insertBefore(container, document.body.firstChild);
-  }
-};
-
-/**
- * Creates and toggles an inline game selection panel
- * @param games - Array of games to display
- * @param onDownload - Callback when download button is clicked, receives selected games
- */
-export const showGameSelectionModal = (
-  games: Game[],
-  onDownload: (selectedGames: Game[]) => void
-): void => {
-  const panelId = 'nyurban-calendar-panel';
-  const existingPanel = document.getElementById(panelId);
-
-  // If panel exists, toggle visibility.
-  if (existingPanel) {
-    const isHidden = existingPanel.style.display === 'none';
-    existingPanel.style.display = isHidden ? 'block' : 'none';
-    return;
-  }
-
-  // Create inline panel (no extra styling, it's inside the white container).
-  const panel = document.createElement('div');
-  panel.id = panelId;
-  panel.style.cssText = `
-    margin-top: 24px;
-    padding-top: 24px;
-    border-top: 2px solid #e0e0e0;
-  `;
-
-  // Title.
-  const title = document.createElement('h3');
-  title.textContent = 'Select games to add to calendar';
-  title.style.cssText = `
-    margin: 0 0 20px 0;
-    font-size: 20px;
-    font-weight: 600;
-    color: #333;
-  `;
-  panel.appendChild(title);
-
-  // Game list.
-  const gameList = createGameList(games, onDownload);
-  panel.appendChild(gameList);
-
-  // Insert panel inside the container, after the button.
-  const container = document.getElementById('nyurban-calendar-container');
-  if (container) {
-    container.appendChild(panel);
-  } else {
-    document.body.appendChild(panel);
   }
 };
 

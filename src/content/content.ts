@@ -1,5 +1,5 @@
 import { parseSchedule } from './parser';
-import { injectCalendarButton, showGameSelectionModal } from './ui';
+import { injectGamesList } from './ui';
 import { generateICS, downloadICS } from '../lib/ics-generator';
 
 /**
@@ -15,32 +15,26 @@ const init = async () => {
   // Wait for schedule to load (it's populated dynamically).
   await waitForScheduleToLoad();
 
-  // Inject the calendar button.
-  injectCalendarButton(() => {
-    // Parse the schedule when button is clicked (in case it loads later).
-    const games = parseSchedule(document);
+  // Parse the schedule.
+  const games = parseSchedule(document);
 
-    if (games.length === 0) {
-      alert(
-        "No games found on this page. Make sure you're viewing a team schedule with published games."
-      );
-      return;
+  if (games.length === 0) {
+    return;
+  }
+
+  // Inject the games list with download handler.
+  injectGamesList(games, (selectedGames) => {
+    // Generate ICS file.
+    const icsContent = generateICS(selectedGames);
+
+    if (icsContent) {
+      // Trigger download.
+      const teamName = selectedGames[0]?.teamName || 'team';
+      const filename = `${teamName.toLowerCase().replace(/\s+/g, '-')}-schedule.ics`;
+      downloadICS(icsContent, filename);
+    } else {
+      alert('Error generating calendar file. Please try again.');
     }
-
-    // Show the game selection modal.
-    showGameSelectionModal(games, (selectedGames) => {
-      // Generate ICS file.
-      const icsContent = generateICS(selectedGames);
-
-      if (icsContent) {
-        // Trigger download.
-        const teamName = selectedGames[0]?.teamName || 'team';
-        const filename = `${teamName.toLowerCase().replace(/\s+/g, '-')}-schedule.ics`;
-        downloadICS(icsContent, filename);
-      } else {
-        alert('Error generating calendar file. Please try again.');
-      }
-    });
   });
 };
 
