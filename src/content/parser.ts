@@ -2,6 +2,9 @@ import { Result, ok, err } from 'neverthrow';
 import { Game } from '../lib/types';
 import { CONFIG, SELECTORS } from '../lib/constants';
 
+/**
+ * Parses a NY Urban schedule page and extracts all game data.
+ */
 export const parseSchedule = (doc: Document): Result<Game[], Error> => {
   if (!doc || !doc.querySelector) {
     return err(new Error('Invalid document provided to parseSchedule'));
@@ -186,7 +189,9 @@ const getCurrentOrNextYear = (month: number, day: number): number => {
   return daysDiff < -CONFIG.YEAR_ROLLOVER_THRESHOLD_DAYS ? currentYear + 1 : currentYear;
 };
 
-// Returns EST (-05:00) or EDT (-04:00) based on DST for the given date/time.
+/**
+ * Returns EST (-05:00) or EDT (-04:00) based on DST for the given date/time.
+ */
 export const getEasternOffset = (
   year: number,
   month: number,
@@ -207,6 +212,9 @@ export const getEasternOffset = (
   return tzName === 'EDT' ? '-04:00' : '-05:00';
 };
 
+/**
+ * Extracts the team name from the page header.
+ */
 export const extractTeamName = (doc: Document): Result<string, Error> => {
   const teamHeader = doc.querySelector(SELECTORS.TEAM_NAME);
 
@@ -221,6 +229,9 @@ export const extractTeamName = (doc: Document): Result<string, Error> => {
   return err(new Error('Team name not found on page'));
 };
 
+/**
+ * Type guard to validate that a game object has all required fields.
+ */
 export const isValidGame = (game: Partial<Game>): game is Game => {
   return !!(game.gameNumber && game.teamName && game.opponent && game.date && game.location);
 };

@@ -4,6 +4,7 @@ import typescriptParser from '@typescript-eslint/parser';
 import jest from 'eslint-plugin-jest';
 import prettier from 'eslint-config-prettier';
 import unusedImports from 'eslint-plugin-unused-imports';
+import jsdoc from 'eslint-plugin-jsdoc';
 
 export default [
   js.configs.recommended,
@@ -34,6 +35,7 @@ export default [
     plugins: {
       '@typescript-eslint': typescript,
       'unused-imports': unusedImports,
+      jsdoc: jsdoc,
     },
     rules: {
       ...typescript.configs.recommended.rules,
@@ -103,6 +105,25 @@ export default [
           ignoreTemplateLiterals: true,
           ignoreRegExpLiterals: true,
           ignoreComments: false,
+        },
+      ],
+
+      // Require JSDoc for exported functions.
+      'jsdoc/require-jsdoc': [
+        'error',
+        {
+          require: {
+            FunctionDeclaration: false,
+            MethodDefinition: false,
+            ClassDeclaration: false,
+            ArrowFunctionExpression: false,
+            FunctionExpression: false,
+          },
+          contexts: [
+            'ExportNamedDeclaration[declaration.type="VariableDeclaration"]',
+            'ExportNamedDeclaration[declaration.type="FunctionDeclaration"]',
+          ],
+          enableFixer: false,
         },
       ],
     },

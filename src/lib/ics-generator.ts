@@ -13,6 +13,9 @@ export class ICSGenerationError extends Error {
   }
 }
 
+/**
+ * Generates an ICS calendar file content from an array of games.
+ */
 export const generateICS = (games: Game[]): Result<string, ICSGenerationError> => {
   if (!Array.isArray(games)) {
     return err(new ICSGenerationError('Games must be an array'));
@@ -93,6 +96,9 @@ const convertGameToEvent = (
   });
 };
 
+/**
+ * Triggers a browser download of the ICS file.
+ */
 export const downloadICS = (icsContent: string, filename = 'nyurban-schedule.ics'): void => {
   const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
   const url = URL.createObjectURL(blob);

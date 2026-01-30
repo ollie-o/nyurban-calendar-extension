@@ -3,6 +3,9 @@ import { UI_IDS, SELECTORS } from '../lib/constants';
 import { createControlsRow, createEmptyState } from '../lib/ui-helpers';
 import { formatDate, formatTime } from '../lib/formatters';
 
+/**
+ * Injects the games list UI into the page with checkboxes and download functionality.
+ */
 export const injectGamesList = (
   games: Game[],
   onDownload: (selectedGames: Game[]) => void

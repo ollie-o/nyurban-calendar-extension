@@ -1,3 +1,6 @@
+/**
+ * Creates a styled control button with hover effects.
+ */
 export const createControlButton = (text: string, onClick: () => void): HTMLButtonElement => {
   const btn = document.createElement('button');
   btn.textContent = text;
@@ -22,6 +25,9 @@ export const createControlButton = (text: string, onClick: () => void): HTMLButt
   return btn;
 };
 
+/**
+ * Creates a styled download button for the calendar export.
+ */
 export const createDownloadButton = (onClick: () => void): HTMLButtonElement => {
   const downloadBtn = document.createElement('button');
   downloadBtn.textContent = 'Download calendar file (.ics)';
@@ -51,6 +57,9 @@ export const createDownloadButton = (onClick: () => void): HTMLButtonElement => 
   return downloadBtn;
 };
 
+/**
+ * Creates a row with select/deselect controls and download button.
+ */
 export const createControlsRow = (
   onDownload: () => void,
   toggleAllCheckboxes: (checked: boolean) => void
@@ -84,6 +93,9 @@ export const createControlsRow = (
   return controlsRow;
 };
 
+/**
+ * Creates an empty state message when no games are found.
+ */
 export const createEmptyState = (): HTMLElement => {
   const container = document.createElement('div');
   container.textContent = 'No games found on this page.';

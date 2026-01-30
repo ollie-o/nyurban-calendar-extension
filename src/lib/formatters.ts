@@ -1,3 +1,6 @@
+/**
+ * Formats an ISO date string to a human-readable date.
+ */
 export const formatDate = (dateStr: string): string => {
   const date = new Date(dateStr);
   return date.toLocaleDateString('en-US', {
@@ -7,6 +10,9 @@ export const formatDate = (dateStr: string): string => {
   });
 };
 
+/**
+ * Formats an ISO date string to a human-readable time.
+ */
 export const formatTime = (dateStr: string): string => {
   const date = new Date(dateStr);
   const hour = date.getHours();
@@ -16,6 +22,9 @@ export const formatTime = (dateStr: string): string => {
   return `${hour12}:${minute.toString().padStart(2, '0')} ${ampm}`;
 };
 
+/**
+ * Sanitizes a string for use as a filename.
+ */
 export const sanitizeFilename = (str: string): string => {
   return str
     .toLowerCase()
