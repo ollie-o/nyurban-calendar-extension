@@ -92,12 +92,15 @@ const parseGameRow = (
   const locationLink = cells[1]?.querySelector('a');
   const locationCode = locationLink?.textContent?.trim() || '';
 
-  // Full location name is in cell 2 (strong tag).
-  const locationStrong = cells[2]?.querySelector('strong');
-  const locationFullName = locationStrong?.textContent?.trim() || '';
+  // Full location details from cell 2 (name, address, and rules).
+  let locationFullDetails = cells[2]?.textContent?.trim() || '';
+  // Remove "Map" or "Map Directions" link text at the end.
+  locationFullDetails = locationFullDetails.replace(/\s*(Map|Map\s+Directions)\s*$/i, '');
+  // Clean up excessive whitespace.
+  locationFullDetails = locationFullDetails.replace(/\s+/g, ' ').trim();
 
   const location = locationCode;
-  const locationDetails = locationFullName;
+  const locationDetails = locationFullDetails;
 
   const cell4Text = cells[4]?.textContent?.trim() || '';
   const opponent = cell4Text.split(/[\t\n]{3,}|\s{10,}/)[0]?.trim() || '';
