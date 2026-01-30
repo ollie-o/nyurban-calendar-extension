@@ -39,7 +39,7 @@ export const parseSchedule = (doc: Document): Result<Game[], Error> => {
 
   for (const row of rows) {
     const gameDataResult = parseGameRow(row, teamName, gameNumber);
-    
+
     // If parsing failed with an error (not just null/empty), return the error.
     if (gameDataResult.isErr()) {
       return err(gameDataResult.error);

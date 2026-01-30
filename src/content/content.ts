@@ -26,6 +26,7 @@ const init = async (): Promise<Result<void, Error>> => {
 
   const games = gamesResult.value;
   if (games.length === 0) {
+    injectEmptyMessage();
     return ok(undefined);
   }
 
@@ -88,6 +89,43 @@ const waitForScheduleToLoad = async (): Promise<void> => {
   }
 
   // Timeout reached, proceed anyway (schedule might be empty).
+};
+
+/**
+ * Injects a message when no games are found.
+ */
+const injectEmptyMessage = (): void => {
+  // Check if message already exists.
+  const existingMessage = document.getElementById('nyurban-calendar-empty');
+  if (existingMessage) {
+    return;
+  }
+
+  // Create message container.
+  const messageDiv = document.createElement('div');
+  messageDiv.id = 'nyurban-calendar-empty';
+  messageDiv.style.cssText = `
+    padding: 20px;
+    margin: 20px auto;
+    max-width: 600px;
+    text-align: center;
+    background: white;
+    border: 2px solid #007bff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    color: #333;
+    font-size: 16px;
+  `;
+  messageDiv.textContent = 'No games found on this page.';
+
+  // Find the team div and insert below it.
+  const teamDiv = document.querySelector('div.green_block.team');
+  if (teamDiv && teamDiv.parentElement) {
+    teamDiv.parentElement.insertBefore(messageDiv, teamDiv.nextSibling);
+  } else {
+    // Fallback: insert at the beginning of the body.
+    document.body.insertBefore(messageDiv, document.body.firstChild);
+  }
 };
 
 /**
