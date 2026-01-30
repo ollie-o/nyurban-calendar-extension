@@ -161,7 +161,7 @@ const createGameList = (
     border-bottom: 2px solid #e0e0e0;
   `;
 
-  // Select All / Deselect All buttons.
+  // Select all / deselect all buttons.
   const selectAllContainer = document.createElement('div');
   selectAllContainer.style.cssText = `
     display: flex;
