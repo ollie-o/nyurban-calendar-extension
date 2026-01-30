@@ -14,15 +14,56 @@ export const injectCalendarButton = (onClick: () => void): void => {
   button.id = 'nyurban-calendar-btn';
   button.textContent = 'Select games to add to calendar';
   button.style.cssText = `
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 10000;
+    display: block;
+    margin: 20px 0;
+    padding: 12px 24px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+    transition: background 0.2s, transform 0.1s;
   `;
 
   button.addEventListener('click', onClick);
 
-  document.body.appendChild(button);
+  // Add hover effects.
+  button.addEventListener('mouseenter', () => {
+    button.style.background = '#0056b3';
+    button.style.transform = 'translateY(-1px)';
+    button.style.boxShadow = '0 4px 12px rgba(0, 123, 255, 0.4)';
+  });
+  button.addEventListener('mouseleave', () => {
+    button.style.background = '#007bff';
+    button.style.transform = 'translateY(0)';
+    button.style.boxShadow = '0 2px 8px rgba(0, 123, 255, 0.3)';
+  });
+
+  // Find the spectators warning text and insert button below it.
+  const findAndInsertButton = (): boolean => {
+    const allElements = Array.from(document.querySelectorAll('*'));
+    for (const element of allElements) {
+      if (element.textContent && element.textContent.includes('ABSOLUTELY NO SPECTATORS')) {
+        // Insert button after this element's parent or the element itself.
+        const targetElement =
+          element.tagName === 'P' || element.tagName === 'DIV' ? element : element.parentElement;
+        if (targetElement) {
+          targetElement.insertAdjacentElement('afterend', button);
+          return true;
+        }
+      }
+    }
+    return false;
+  };
+
+  // Try to insert at the specific location, fallback to body if not found.
+  if (!findAndInsertButton()) {
+    // Fallback: insert at the beginning of the body.
+    document.body.insertBefore(button, document.body.firstChild);
+  }
 };
 
 /**
