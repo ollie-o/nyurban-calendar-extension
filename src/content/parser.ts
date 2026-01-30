@@ -185,11 +185,17 @@ const parseDateAndTime = (dateText: string, timeText: string): Result<string, Er
 const getCurrentOrNextYear = (month: number, day: number): number => {
   const now = new Date();
   const currentYear = now.getFullYear();
-  const testDate = new Date(currentYear, month - 1, day);
 
-  const daysDiff = (testDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24);
+  // Option A: Date with current year.
+  const dateCurrentYear = new Date(currentYear, month - 1, day);
+  const diffCurrentYear = Math.abs(dateCurrentYear.getTime() - now.getTime());
 
-  return daysDiff < -CONFIG.YEAR_ROLLOVER_THRESHOLD_DAYS ? currentYear + 1 : currentYear;
+  // Option B: Date with next year.
+  const dateNextYear = new Date(currentYear + 1, month - 1, day);
+  const diffNextYear = Math.abs(dateNextYear.getTime() - now.getTime());
+
+  // Return whichever year makes the date closer to today.
+  return diffCurrentYear <= diffNextYear ? currentYear : currentYear + 1;
 };
 
 /**
