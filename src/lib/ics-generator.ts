@@ -89,8 +89,6 @@ const convertGameToEvent = (
     start: [year, month, day, hour, minute],
     duration: { minutes: duration },
     title: `${game.teamName} game ${game.gameNumber} vs. ${game.opponent}`,
-    location: game.locationDetails,
-    description: game.locationDetails,
     status: 'CONFIRMED',
     busyStatus: 'BUSY',
   });
