@@ -89,7 +89,7 @@ const convertGameToEvent = (
     start: [year, month, day, hour, minute],
     duration: { minutes: duration },
     title: `${game.teamName} game ${game.gameNumber} vs. ${game.opponent}`,
-    organizer: { name: game.teamName, email: 'noreply@nyurban.com' },
+    organizer: { name: game.teamName, email: 'oliverodaa@gmail.com' },
     status: 'CONFIRMED',
     busyStatus: 'BUSY',
   });
