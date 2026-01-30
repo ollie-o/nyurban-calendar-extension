@@ -1,6 +1,6 @@
 # GitHub Repository Setup Guide
 
-This guide explains how to set up your GitHub repository with branch protection and required CI checks.
+This guide explains how to set up your GitHub repository with branch rulesets and required CI checks.
 
 ## 1. Create GitHub Repository
 
@@ -28,45 +28,53 @@ GitHub Actions should be enabled by default. Verify:
 2. Click on the "Actions" tab
 3. If prompted, enable GitHub Actions
 
-## 4. Set Up Branch Protection Rules
+## 4. Set Up Branch Ruleset
+
+GitHub now uses Rulesets (the modern approach) instead of legacy branch protection rules.
 
 1. Go to your repository on GitHub
-2. Click **Settings** → **Branches**
-3. Under "Branch protection rules", click **Add rule**
+2. Click **Settings** → **Rules** → **Rulesets**
+3. Click **New ruleset** → **New branch ruleset**
 
-### Protection Settings for `main` branch:
+### Ruleset Configuration:
 
-Configure the following settings:
+**Ruleset Name:**
 
-**Branch name pattern:**
+- Enter: `Protect main branch`
 
-- Enter: `main`
+**Enforcement status:**
 
-**Protect matching branches - Enable these:**
+- Select: `Active`
+
+**Target branches:**
+
+- Click **Add target** → **Include by pattern**
+- Enter pattern: `main`
+
+**Branch protections - Enable these:**
 
 ✅ **Require a pull request before merging**
 
-- ✅ Require approvals: 1
+- Required approvals: `1`
 - ✅ Dismiss stale pull request approvals when new commits are pushed
-- ✅ Require review from Code Owners (optional, if you create a CODEOWNERS file)
 
-✅ **Require status checks to pass before merging**
+✅ **Require status checks to pass**
 
 - ✅ Require branches to be up to date before merging
-- **Add required status checks:** After your first CI run, you'll see "validate" checks appear.Select:
-  - `validate (18.x)`
+- **Add status checks:** After your first CI run, click **Add checks** and select:
   - `validate (20.x)`
+  - `validate (22.x)`
 
 ✅ **Require conversation resolution before merging**
 
-✅ **Do not allow bypassing the above settings** (Optional - check if you want rules to apply to admins too)
+✅ **Block force pushes**
 
-**Rules applied to everyone including administrators:**
+**Bypass list:**
 
-- ⬜ Allow force pushes (Keep UNCHECKED)
-- ⬜ Allow deletions (Keep UNCHECKED)
+- By default, repository admins can bypass. Adjust based on your preference.
+- For strict enforcement, remove all bypass permissions.
 
-4. Click **Create** or **Save changes**
+4. Click **Create**
 
 ## 5. Optional: Create CODEOWNERS File
 
@@ -111,16 +119,16 @@ This ensures you're automatically added as a reviewer on all PRs.
 
 ## Troubleshooting
 
-**CI checks not appearing as required?**
+**CI checks not appearing in ruleset?**
 
-- The checks must run at least once before they appear in the branch protection settings
+- The checks must run at least once before they appear in the available status checks
 - Push a commit or create a test PR to trigger the first CI run
-- Then go back to branch protection and add the checks
+- Then go back to the ruleset settings and add the checks
 
 **Need to bypass checks temporarily?**
 
-- Temporarily disable branch protection (not recommended)
-- Or grant yourself bypass permissions in the protection settings
+- Set ruleset enforcement to `Disabled` temporarily (not recommended)
+- Or ensure you're in the bypass list if you need to push emergency fixes
 
 **CI failing unexpectedly?**
 
