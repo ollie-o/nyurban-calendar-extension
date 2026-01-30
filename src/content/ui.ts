@@ -1,4 +1,6 @@
 import { Game } from '../lib/types';
+import { UI_IDS, SELECTORS } from '../lib/constants';
+import { createControlsRow, createEmptyState } from '../lib/ui-helpers';
 
 /**
  * Creates and injects the game selection panel on the page
@@ -10,13 +12,13 @@ export const injectGamesList = (
   onDownload: (selectedGames: Game[]) => void
 ): void => {
   // Check if container already exists.
-  if (document.getElementById('nyurban-calendar-container')) {
+  if (document.getElementById(UI_IDS.CONTAINER)) {
     return;
   }
 
   // Create white container div.
   const container = document.createElement('div');
-  container.id = 'nyurban-calendar-container';
+  container.id = UI_IDS.CONTAINER;
   container.style.cssText = `
     background: white;
     border: 1px solid #e0e0e0;
@@ -45,7 +47,7 @@ export const injectGamesList = (
   // Find the team name div and insert container below it.
   const findAndInsertContainer = (): boolean => {
     // Look for div with class "green_block team".
-    const teamDiv = document.querySelector('div.green_block.team');
+    const teamDiv = document.querySelector(SELECTORS.TEAM_DIV);
 
     if (teamDiv) {
       teamDiv.insertAdjacentElement('afterend', container);
@@ -71,98 +73,21 @@ const createGameList = (
   const container = document.createElement('div');
 
   if (games.length === 0) {
-    container.textContent = 'No games found on this page.';
-    container.style.cssText = `
-      padding: 20px;
-      text-align: center;
-      color: #666;
-    `;
-    return container;
+    return createEmptyState();
   }
 
-  // Control buttons row.
-  const controlsRow = document.createElement('div');
-  controlsRow.style.cssText = `
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 16px;
-    padding-bottom: 16px;
-    border-bottom: 2px solid #e0e0e0;
-  `;
-
-  // Select all / deselect all buttons.
-  const selectAllContainer = document.createElement('div');
-  selectAllContainer.style.cssText = `
-    display: flex;
-    gap: 8px;
-  `;
-
-  const createControlButton = (text: string, onClick: () => void): HTMLButtonElement => {
-    const btn = document.createElement('button');
-    btn.textContent = text;
-    btn.style.cssText = `
-      padding: 8px 16px;
-      border: 1px solid #ddd;
-      background: white;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 14px;
-      transition: all 0.2s;
-    `;
-    btn.addEventListener('click', onClick);
-    btn.addEventListener('mouseenter', () => {
-      btn.style.background = '#f5f5f5';
-      btn.style.borderColor = '#007bff';
-    });
-    btn.addEventListener('mouseleave', () => {
-      btn.style.background = 'white';
-      btn.style.borderColor = '#ddd';
-    });
-    return btn;
+  // Add download handler with validation.
+  const handleDownload = () => {
+    const selectedGames = getSelectedGames(games);
+    if (selectedGames.length === 0) {
+      alert('Please select at least one game');
+      return;
+    }
+    onDownload(selectedGames);
   };
 
-  const selectAllBtn = createControlButton('Select all', () => toggleAllCheckboxes(true));
-  const deselectAllBtn = createControlButton('Deselect all', () => toggleAllCheckboxes(false));
-
-  selectAllContainer.appendChild(selectAllBtn);
-  selectAllContainer.appendChild(deselectAllBtn);
-  controlsRow.appendChild(selectAllContainer);
-
-  // Download button.
-  const downloadBtn = document.createElement('button');
-  downloadBtn.textContent = 'Download calendar file (.ics)';
-  downloadBtn.style.cssText = `
-    padding: 10px 24px;
-    border: none;
-    background: #28a745;
-    color: white;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 15px;
-    font-weight: 600;
-    transition: all 0.2s;
-  `;
-  downloadBtn.addEventListener('click', () => {
-    const selectedGames = getSelectedGames(games);
-    if (selectedGames.length > 0) {
-      onDownload(selectedGames);
-    } else {
-      alert('Please select at least one game');
-    }
-  });
-  downloadBtn.addEventListener('mouseenter', () => {
-    downloadBtn.style.background = '#218838';
-    downloadBtn.style.transform = 'translateY(-1px)';
-    downloadBtn.style.boxShadow = '0 4px 8px rgba(40, 167, 69, 0.3)';
-  });
-  downloadBtn.addEventListener('mouseleave', () => {
-    downloadBtn.style.background = '#28a745';
-    downloadBtn.style.transform = 'translateY(0)';
-    downloadBtn.style.boxShadow = 'none';
-  });
-
-  controlsRow.appendChild(downloadBtn);
+  // Control buttons row.
+  const controlsRow = createControlsRow(handleDownload, toggleAllCheckboxes);
   container.appendChild(controlsRow);
 
   // Create table.
@@ -220,6 +145,12 @@ const createGameList = (
  */
 const createGameItem = (game: Game, index: number): HTMLTableRowElement => {
   const row = document.createElement('tr');
+  row.setAttribute('role', 'row');
+  row.setAttribute('tabindex', '0');
+  row.setAttribute(
+    'aria-label',
+    `Game ${game.gameNumber}: ${game.teamName} vs ${game.opponent} on ${formatDate(game.date)} at ${formatTime(game.time)}`
+  );
   row.style.cssText = `
     border-bottom: 1px solid #e9ecef;
     cursor: pointer;
@@ -244,8 +175,10 @@ const createGameItem = (game: Game, index: number): HTMLTableRowElement => {
   const checkbox = document.createElement('input');
   checkbox.type = 'checkbox';
   checkbox.checked = true;
-  checkbox.className = 'game-checkbox';
+  checkbox.className = UI_IDS.GAME_CHECKBOX;
   checkbox.dataset.gameIndex = String(index);
+  checkbox.setAttribute('aria-label', `Select game ${game.gameNumber} vs ${game.opponent}`);
+  checkbox.setAttribute('id', `game-checkbox-${index}`);
   checkbox.style.cssText = `
     width: 18px;
     height: 18px;
@@ -306,9 +239,16 @@ const createGameItem = (game: Game, index: number): HTMLTableRowElement => {
   locationCell.textContent = game.location;
   row.appendChild(locationCell);
 
-  // Toggle checkbox on row click.
+  // Toggle checkbox on row click or keyboard interaction.
   row.addEventListener('click', (e) => {
     if (e.target !== checkbox) {
+      checkbox.checked = !checkbox.checked;
+    }
+  });
+
+  row.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
       checkbox.checked = !checkbox.checked;
     }
   });
@@ -318,19 +258,27 @@ const createGameItem = (game: Game, index: number): HTMLTableRowElement => {
 
 /**
  * Gets the selected games based on checkboxes
+ * @param games - All available games
+ * @returns Array of selected games
  */
 const getSelectedGames = (games: Game[]): Game[] => {
-  const checkboxes = document.querySelectorAll<HTMLInputElement>('.game-checkbox:checked');
+  const checkboxes = document.querySelectorAll<HTMLInputElement>(
+    `.${UI_IDS.GAME_CHECKBOX}:checked`
+  );
   return Array.from(checkboxes)
-    .map((cb) => games[parseInt(cb.dataset.gameIndex || '0')])
-    .filter(Boolean);
+    .map((cb) => {
+      const index = parseInt(cb.dataset.gameIndex || '0');
+      return games[index];
+    })
+    .filter((game): game is Game => Boolean(game));
 };
 
 /**
  * Toggles all checkboxes
+ * @param checked - True to check all, false to uncheck all
  */
 const toggleAllCheckboxes = (checked: boolean): void => {
-  const checkboxes = document.querySelectorAll<HTMLInputElement>('.game-checkbox');
+  const checkboxes = document.querySelectorAll<HTMLInputElement>(`.${UI_IDS.GAME_CHECKBOX}`);
   checkboxes.forEach((cb) => {
     cb.checked = checked;
   });

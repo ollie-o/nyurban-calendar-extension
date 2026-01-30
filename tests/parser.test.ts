@@ -1,4 +1,9 @@
-import { parseSchedule, isValidGame, getEasternOffset } from '../src/content/parser';
+import {
+  parseSchedule,
+  isValidGame,
+  getEasternOffset,
+  extractTeamName,
+} from '../src/content/parser';
 import { Game } from '../src/lib/types';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -31,6 +36,17 @@ const loadHTMLFixture = (filename: string): Document => {
   // Not a view-source wrapper, return as-is.
   return wrapperDom.window.document;
 };
+
+describe('Error Handling', () => {
+  it('should throw error when team name not found', () => {
+    const emptyDoc = new JSDOM('<html><body></body></html>').window.document;
+    expect(() => extractTeamName(emptyDoc)).toThrow('Team name not found on page');
+  });
+
+  it('should throw error for invalid document', () => {
+    expect(() => parseSchedule(null as any)).toThrow('Invalid document provided to parseSchedule');
+  });
+});
 
 describe('Timezone Offset', () => {
   const testCases = [
