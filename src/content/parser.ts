@@ -114,8 +114,8 @@ const parseGameRow = (row: Element, teamName: string, gameNumber: number): Parti
   }
 
   // Parse date and time.
-  const { date, time } = parseDateAndTime(dateText, timeText);
-  if (!date || !time) {
+  const date = parseDateAndTime(dateText, timeText);
+  if (!date) {
     return null;
   }
 
@@ -145,7 +145,6 @@ const parseGameRow = (row: Element, teamName: string, gameNumber: number): Parti
     teamName,
     opponent,
     date,
-    time,
     location,
     locationDetails,
     duration: CONFIG.DEFAULT_GAME_DURATION_MINUTES,
@@ -153,16 +152,16 @@ const parseGameRow = (row: Element, teamName: string, gameNumber: number): Parti
 };
 
 /**
- * Parses date and time from NY Urban format
+ * Parses date and time from NY Urban format into ISO8601 datetime string.
  * Date format: "Wed 01/14" (month/day, current year assumed)
  * Time format: "6:30" or "9:15" (24-hour or AM/PM)
- * Returns ISO8601 format with Eastern timezone
+ * @returns ISO8601 datetime string with Eastern timezone (e.g., "2026-01-13T18:30:00-05:00")
  */
-const parseDateAndTime = (dateText: string, timeText: string): { date: string; time: string } => {
+const parseDateAndTime = (dateText: string, timeText: string): string => {
   // Extract month and day from "Wed 01/14".
   const dateMatch = dateText.match(/(\d{1,2})\/(\d{1,2})/);
   if (!dateMatch) {
-    return { date: '', time: '' };
+    return '';
   }
 
   const month = parseInt(dateMatch[1]);
@@ -182,14 +181,14 @@ const parseDateAndTime = (dateText: string, timeText: string): { date: string; t
   if (!time.match(/am|pm/i)) {
     const timeParts = time.split(':');
     if (timeParts.length !== 2) {
-      return { date: '', time: '' }; // Invalid time format.
+      return ''; // Invalid time format.
     }
 
     const hours = parseInt(timeParts[0]);
     const minutes = parseInt(timeParts[1]);
 
     if (isNaN(hours) || isNaN(minutes)) {
-      return { date: '', time: '' }; // Invalid numbers.
+      return ''; // Invalid numbers.
     }
 
     if (hours < 12 && hours >= 6) {
@@ -224,9 +223,7 @@ const parseDateAndTime = (dateText: string, timeText: string): { date: string; t
   // Combine into ISO8601 format with timezone.
   const monthStr = month.toString().padStart(2, '0');
   const dayStr = day.toString().padStart(2, '0');
-  const date = `${year}-${monthStr}-${dayStr}T${time}:00${tzOffset}`;
-
-  return { date, time };
+  return `${year}-${monthStr}-${dayStr}T${time}:00${tzOffset}`;
 };
 
 /**
@@ -309,12 +306,5 @@ export const extractTeamName = (doc: Document): string => {
  * @returns True if valid, false otherwise
  */
 export const isValidGame = (game: Partial<Game>): game is Game => {
-  return !!(
-    game.gameNumber &&
-    game.teamName &&
-    game.opponent &&
-    game.date &&
-    game.time &&
-    game.location
-  );
+  return !!(game.gameNumber && game.teamName && game.opponent && game.date && game.location);
 };

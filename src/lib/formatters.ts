@@ -17,12 +17,14 @@ export const formatDate = (dateStr: string): string => {
 };
 
 /**
- * Formats a time string for display.
- * @param timeStr - Time in 24-hour format (HH:MM)
+ * Formats time from an ISO8601 datetime string for display.
+ * @param dateStr - ISO8601 datetime string (e.g., "2026-01-13T18:30:00-05:00")
  * @returns Formatted time (e.g., "6:30 PM")
  */
-export const formatTime = (timeStr: string): string => {
-  const [hour, minute] = timeStr.split(':').map(Number);
+export const formatTime = (dateStr: string): string => {
+  const date = new Date(dateStr);
+  const hour = date.getHours();
+  const minute = date.getMinutes();
   const ampm = hour >= 12 ? 'PM' : 'AM';
   const hour12 = hour % 12 || 12;
   return `${hour12}:${minute.toString().padStart(2, '0')} ${ampm}`;

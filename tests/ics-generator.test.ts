@@ -7,7 +7,6 @@ describe('ICS Generator', () => {
     teamName: 'Test Team',
     opponent: 'Opponent',
     date: '2026-02-15T19:00:00-05:00',
-    time: '19:00',
     location: 'Gym',
     locationDetails: '123 Main St\nPlease arrive early',
     duration: 60,

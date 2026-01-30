@@ -150,7 +150,7 @@ const createGameItem = (game: Game, index: number): HTMLTableRowElement => {
   row.setAttribute('tabindex', '0');
   row.setAttribute(
     'aria-label',
-    `Game ${game.gameNumber}: ${game.teamName} vs ${game.opponent} on ${formatDate(game.date)} at ${formatTime(game.time)}`
+    `Game ${game.gameNumber}: ${game.teamName} vs ${game.opponent} on ${formatDate(game.date)} at ${formatTime(game.date)}`
   );
   row.style.cssText = `
     border-bottom: 1px solid #e9ecef;
@@ -220,7 +220,7 @@ const createGameItem = (game: Game, index: number): HTMLTableRowElement => {
     color: #000;
   `;
   const timeDiv = document.createElement('div');
-  timeDiv.textContent = formatTime(game.time);
+  timeDiv.textContent = formatTime(game.date);
   timeDiv.style.cssText = `
     font-size: 12px;
     color: #000;

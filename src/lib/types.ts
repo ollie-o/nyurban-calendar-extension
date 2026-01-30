@@ -11,11 +11,8 @@ export interface Game {
   /** The opposing team's name */
   opponent: string;
 
-  /** Game date in ISO format (YYYY-MM-DD) */
+  /** Game date and time in ISO8601 format with timezone (e.g., "2026-01-13T18:30:00-05:00") */
   date: string;
-
-  /** Game time in 24-hour format (HH:MM) */
-  time: string;
 
   /** Venue name (e.g., "BRANDEIS H.S.") */
   location: string;
