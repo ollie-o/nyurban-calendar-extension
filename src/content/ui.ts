@@ -108,7 +108,7 @@ const createGameList = (
     border-bottom: 2px solid #dee2e6;
   `;
 
-  const headers = ['', 'Game', 'Opponent', 'Date & Time', 'Location'];
+  const headers = ['', 'Game', 'Opponent', 'Date & Time', 'Location', 'Details'];
   headers.forEach((headerText) => {
     const th = document.createElement('th');
     th.textContent = headerText;
@@ -239,6 +239,18 @@ const createGameItem = (game: Game, index: number): HTMLTableRowElement => {
   `;
   locationCell.textContent = game.location;
   row.appendChild(locationCell);
+
+  // Details cell.
+  const detailsCell = document.createElement('td');
+  detailsCell.style.cssText = `
+    padding: 12px 8px;
+    font-size: 12px;
+    color: #555;
+    max-width: 200px;
+    white-space: pre-wrap;
+  `;
+  detailsCell.textContent = game.locationDetails || '';
+  row.appendChild(detailsCell);
 
   // Toggle checkbox on row click or keyboard interaction.
   row.addEventListener('click', (e) => {
