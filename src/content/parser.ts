@@ -17,7 +17,15 @@ export const parseSchedule = (doc: Document): Result<Game[], Error> => {
   const tables = Array.from(doc.querySelectorAll(SELECTORS.SCHEDULE_TABLE));
   const scheduleTable = tables.find((table) => {
     const rows = table.querySelectorAll('tbody tr');
-    return rows.length > CONFIG.SCHEDULE_MIN_ROWS;
+    if (rows.length <= CONFIG.SCHEDULE_MIN_ROWS) {
+      return false;
+    }
+
+    // Check if first row looks like a schedule header (has "Date" in first cell).
+    const firstRow = rows[0];
+    const firstCell = firstRow?.querySelector('td');
+    const headerText = firstCell?.textContent?.trim().toLowerCase();
+    return headerText === 'date';
   });
 
   if (!scheduleTable) {
@@ -77,11 +85,13 @@ const parseGameRow = (
     return ok(null);
   }
 
-  const locationLink = cells[2]?.querySelector('a');
+  // Location code is in cell 1 (first link).
+  const locationLink = cells[1]?.querySelector('a');
   const locationCode = locationLink?.textContent?.trim() || '';
 
-  const locationPopup = cells[2]?.querySelector('#popup strong');
-  const locationFullName = locationPopup?.textContent?.trim() || '';
+  // Full location name is in cell 2 (strong tag).
+  const locationStrong = cells[2]?.querySelector('strong');
+  const locationFullName = locationStrong?.textContent?.trim() || '';
 
   const location = locationCode;
   const locationDetails = locationFullName;
