@@ -1,7 +1,7 @@
-import { createEvents, EventAttributes } from 'ics';
+import { createEvents } from 'ics';
 import { Result, ok, err } from 'neverthrow';
 import { Game } from './types';
-import { CONFIG } from './constants';
+import { convertGamesToEvents } from './helpers/convertGamesToEvents';
 
 export class ICSGenerationError extends Error {
   constructor(
@@ -48,52 +48,6 @@ export const generateICS = (games: Game[]): Result<string, ICSGenerationError> =
   }
 
   return ok(value);
-};
-
-const convertGamesToEvents = (games: Game[]): Result<EventAttributes[], ICSGenerationError> => {
-  const events: EventAttributes[] = [];
-
-  for (let index = 0; index < games.length; index++) {
-    const game = games[index];
-    const eventResult = convertGameToEvent(game, index);
-
-    if (eventResult.isErr()) {
-      return err(eventResult.error);
-    }
-
-    events.push(eventResult.value);
-  }
-
-  return ok(events);
-};
-
-const convertGameToEvent = (
-  game: Game,
-  index: number
-): Result<EventAttributes, ICSGenerationError> => {
-  const dateObj = new Date(game.date);
-
-  if (isNaN(dateObj.getTime())) {
-    return err(new ICSGenerationError(`Invalid date for game ${index + 1}: ${game.date}`));
-  }
-
-  const year = dateObj.getFullYear();
-  const month = dateObj.getMonth() + 1;
-  const day = dateObj.getDate();
-  const hour = dateObj.getHours();
-  const minute = dateObj.getMinutes();
-
-  const duration = game.duration || CONFIG.DEFAULT_GAME_DURATION_MINUTES;
-
-  return ok({
-    start: [year, month, day, hour, minute],
-    duration: { minutes: duration },
-    title: `${game.teamName} game ${game.gameNumber} vs. ${game.opponent}`,
-    location: game.location,
-    description: game.locationDetails,
-    status: 'CONFIRMED',
-    busyStatus: 'BUSY',
-  });
 };
 
 /**

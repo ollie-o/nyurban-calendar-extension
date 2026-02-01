@@ -1,8 +1,3 @@
-/**
- * Jest setup file
- * Adds necessary polyfills for the test environment
- */
-
 import { TextEncoder, TextDecoder } from 'util';
 
 // Add TextEncoder and TextDecoder to global scope for JSDOM.

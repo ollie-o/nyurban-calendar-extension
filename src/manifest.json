@@ -7,7 +7,7 @@
   "content_scripts": [
     {
       "matches": ["https://www.nyurban.com/team-details/*"],
-      "js": ["src/content/content.ts"],
+      "js": ["src/content/content.tsx"],
       "run_at": "document_idle"
     }
   ],

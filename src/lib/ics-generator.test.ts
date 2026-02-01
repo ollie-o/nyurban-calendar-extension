@@ -1,5 +1,5 @@
-import { generateICS } from '../src/lib/ics-generator';
-import { Game } from '../src/lib/types';
+import { generateICS } from './ics-generator';
+import { Game } from './types';
 
 describe('ICS Generator', () => {
   const mockGame: Game = {

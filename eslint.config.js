@@ -88,6 +88,7 @@ export default [
           allowUnboundThis: true,
         },
       ],
+      'arrow-body-style': ['error', 'as-needed'],
       'func-style': [
         'error',
         'expression',
@@ -105,6 +106,37 @@ export default [
           ignoreTemplateLiterals: true,
           ignoreRegExpLiterals: true,
           ignoreComments: false,
+        },
+      ],
+
+      // Max function length to encourage focused functions.
+      'max-lines-per-function': [
+        'warn',
+        {
+          max: 50,
+          skipBlankLines: true,
+          skipComments: true,
+          IIFEs: true,
+        },
+      ],
+
+      // Max file length to keep files manageable.
+      'max-lines': [
+        'warn',
+        {
+          max: 300,
+          skipBlankLines: true,
+          skipComments: true,
+        },
+      ],
+
+      // Require named exports to improve clarity and tree-shaking.
+      'import/no-default-export': 'off',
+      'no-restricted-syntax': [
+        'warn',
+        {
+          selector: 'ExportDefaultDeclaration',
+          message: 'Prefer named exports for better clarity and tree-shaking support.',
         },
       ],
 
@@ -145,6 +177,23 @@ export default [
       'jest/expect-expect': 'warn',
       'jest/valid-title': 'off',
       'jest/no-conditional-expect': 'off',
+      'max-lines': [
+        'warn',
+        {
+          max: 600,
+          skipBlankLines: true,
+          skipComments: true,
+        },
+      ],
+      'max-lines-per-function': [
+        'warn',
+        {
+          max: 100,
+          skipBlankLines: true,
+          skipComments: true,
+          IIFEs: true,
+        },
+      ],
     },
   },
   {
