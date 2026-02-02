@@ -1,4 +1,5 @@
 import { collectDirectories } from '../shared/collectDirectories/collectDirectories';
+
 import { validateChildDirectoryNames } from './helpers/validateChildDirectoryNames/validateChildDirectoryNames';
 
 /**

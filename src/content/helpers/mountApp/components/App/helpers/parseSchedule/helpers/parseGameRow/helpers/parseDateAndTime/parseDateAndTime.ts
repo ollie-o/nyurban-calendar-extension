@@ -1,4 +1,5 @@
-import { Result, ok, err } from 'neverthrow';
+import { Result, err, ok } from 'neverthrow';
+
 import { getCurrentOrNextYear } from './helpers/getCurrentOrNextYear/getCurrentOrNextYear';
 import { getEasternOffset } from './helpers/getEasternOffset/getEasternOffset';
 

@@ -1,8 +1,9 @@
 import React from 'react';
-import { ErrorContainer } from './components/ErrorContainer/ErrorContainer';
-import { ErrorTitle } from './components/ErrorTitle/ErrorTitle';
-import { ErrorMessage } from './components/ErrorMessage/ErrorMessage';
+
 import { DismissButton } from './components/DismissButton/DismissButton';
+import { ErrorContainer } from './components/ErrorContainer/ErrorContainer';
+import { ErrorMessage } from './components/ErrorMessage/ErrorMessage';
+import { ErrorTitle } from './components/ErrorTitle/ErrorTitle';
 
 interface ErrorProps {
   error: Error;

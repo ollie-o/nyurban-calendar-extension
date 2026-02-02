@@ -1,4 +1,5 @@
-import { Result, ok, err } from 'neverthrow';
+import { Result, err, ok } from 'neverthrow';
+
 import { SELECTORS } from '../../../../../../../../shared/constants/constants';
 
 /**

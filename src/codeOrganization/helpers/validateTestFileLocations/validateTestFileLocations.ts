@@ -1,7 +1,8 @@
 import fs from 'fs';
 import path from 'path';
-import { collectSourceFiles } from '../shared/collectSourceFiles/collectSourceFiles';
+
 import { collectAllFiles } from '../shared/collectAllFiles/collectAllFiles';
+import { collectSourceFiles } from '../shared/collectSourceFiles/collectSourceFiles';
 import { TEST_SUFFIXES } from '../shared/constants/constants';
 
 /**

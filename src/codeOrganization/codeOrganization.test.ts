@@ -1,10 +1,11 @@
 import path from 'path';
-import { validateImportHierarchy } from './helpers/validateImportHierarchy/validateImportHierarchy';
-import { validateTestFileLocations } from './helpers/validateTestFileLocations/validateTestFileLocations';
-import { validateAllTestFileImports } from './helpers/validateAllTestFileImports/validateAllTestFileImports';
-import { validateAllDirectoryNaming } from './helpers/validateAllDirectoryNaming/validateAllDirectoryNaming';
+
 import { validateAllChildDirectoryNames } from './helpers/validateAllChildDirectoryNames/validateAllChildDirectoryNames';
+import { validateAllDirectoryNaming } from './helpers/validateAllDirectoryNaming/validateAllDirectoryNaming';
+import { validateAllTestFileImports } from './helpers/validateAllTestFileImports/validateAllTestFileImports';
+import { validateImportHierarchy } from './helpers/validateImportHierarchy/validateImportHierarchy';
 import { validateModuleExportNames } from './helpers/validateModuleExportNames/validateModuleExportNames';
+import { validateTestFileLocations } from './helpers/validateTestFileLocations/validateTestFileLocations';
 
 const ROOT = path.resolve(__dirname, '..');
 

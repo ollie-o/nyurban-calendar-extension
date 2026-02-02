@@ -1,4 +1,5 @@
 import { collectDirectories } from '../shared/collectDirectories/collectDirectories';
+
 import { validateDirectoryNaming } from './helpers/validateDirectoryNaming/validateDirectoryNaming';
 
 /**

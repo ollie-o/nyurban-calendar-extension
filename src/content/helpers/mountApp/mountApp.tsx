@@ -1,4 +1,5 @@
 import { createRoot } from 'react-dom/client';
+
 import { App } from './components/App/App';
 import { UI_IDS, SELECTORS } from './shared/constants/constants';
 

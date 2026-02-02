@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
-import { VALID_EXTENSIONS, EXCLUDED_SUFFIXES } from '../../../shared/constants/constants';
+
+import { EXCLUDED_SUFFIXES, VALID_EXTENSIONS } from '../../../shared/constants/constants';
 
 /**
  * Validates that directories with source files have a file matching the directory name.

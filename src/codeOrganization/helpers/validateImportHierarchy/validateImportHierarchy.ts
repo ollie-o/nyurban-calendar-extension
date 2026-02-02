@@ -1,11 +1,14 @@
 import fs from 'fs';
 import path from 'path';
+
 import ts from 'typescript';
+
+import { collectSourceFiles } from '../shared/collectSourceFiles/collectSourceFiles';
 import { getModuleSpecifiers } from '../shared/getModuleSpecifiers/getModuleSpecifiers';
 import { resolveImport } from '../shared/resolveImport/resolveImport';
-import { getDepth } from './helpers/getDepth/getDepth';
+
 import { buildImportCounts } from './helpers/buildImportCounts/buildImportCounts';
-import { collectSourceFiles } from '../shared/collectSourceFiles/collectSourceFiles';
+import { getDepth } from './helpers/getDepth/getDepth';
 
 /**
  * Finds the deepest common ancestor directory of multiple paths.
@@ -93,7 +96,8 @@ const validateMultiImportedFiles = (
 
     if (!isInSharedDir(importedFile, dca)) {
       failures.push(
-        `${importedFile} - imported by ${uniqueImporters.length} files but not in "shared" directory (DCA: ${dca})`
+        `${importedFile} - imported by ${uniqueImporters.length} files but not in ` +
+          `"shared" directory (DCA: ${dca})`
       );
     }
   }

@@ -1,6 +1,8 @@
 import fs from 'fs';
 import path from 'path';
+
 import ts from 'typescript';
+
 import { getModuleSpecifiers } from '../../../shared/getModuleSpecifiers/getModuleSpecifiers';
 import { resolveImport } from '../../../shared/resolveImport/resolveImport';
 

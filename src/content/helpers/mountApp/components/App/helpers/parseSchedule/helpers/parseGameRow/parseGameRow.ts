@@ -1,6 +1,8 @@
-import { Result, ok, err } from 'neverthrow';
-import { Game } from '../../../../shared/types/Game/Game';
+import { Result, err, ok } from 'neverthrow';
+
 import { CONFIG } from '../../../../../../shared/constants/constants';
+import { Game } from '../../../../shared/types/Game/Game';
+
 import { parseDateAndTime } from './helpers/parseDateAndTime/parseDateAndTime';
 
 /**

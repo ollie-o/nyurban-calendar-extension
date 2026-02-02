@@ -1,6 +1,6 @@
 import { EmptyStateContainer } from './components/EmptyStateContainer/EmptyStateContainer';
-import { EmptyStateTitle } from './components/EmptyStateTitle/EmptyStateTitle';
 import { EmptyStateMessage } from './components/EmptyStateMessage/EmptyStateMessage';
+import { EmptyStateTitle } from './components/EmptyStateTitle/EmptyStateTitle';
 
 /**
  * Component displayed when no games are found on the page.

@@ -1,7 +1,8 @@
 import { EventAttributes } from 'ics';
-import { Result, ok, err } from 'neverthrow';
-import { Game } from '../../../../../../../../shared/types/Game/Game';
+import { Result, err, ok } from 'neverthrow';
+
 import { CONFIG } from '../../../../../../../../../../shared/constants/constants';
+import { Game } from '../../../../../../../../shared/types/Game/Game';
 
 /**
  * Converts a single game to an ICS event.

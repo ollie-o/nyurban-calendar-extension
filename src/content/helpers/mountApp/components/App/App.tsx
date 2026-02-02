@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { parseSchedule } from './helpers/parseSchedule/parseSchedule';
-import { Game } from './shared/types/Game/Game';
-import { GamesContainer } from './components/GamesContainer/GamesContainer';
+
 import { EmptyState } from './components/EmptyState/EmptyState';
 import { Error as ErrorComponent } from './components/Error/Error';
+import { GamesContainer } from './components/GamesContainer/GamesContainer';
+import { parseSchedule } from './helpers/parseSchedule/parseSchedule';
 import { waitForScheduleToLoad } from './helpers/waitForScheduleToLoad/waitForScheduleToLoad';
+import { Game } from './shared/types/Game/Game';
 
 /**
  * Main app component that handles all business logic for the extension.
