@@ -17,9 +17,8 @@ The NY Urban Calendar extension follows a strict "no-data" collection policy:
 
 To facilitate the creation of calendar files, the extension uses:
 
-- **`activeTab`**: Allows the extension to interact with the NY Urban page you are currently viewing.
-- **`https://www.nyurban.com*`**: This permission is used exclusively to read game schedules from the NY Urban website so they can be converted into a calendar format.
-- **Content Scripts**: These run only on the specific team details pages to identify game times and locations.
+- **Host Permission (`https://www.nyurban.com/team-details/*`)**: This permission is used exclusively to read game schedules from NY Urban team detail pages so they can be converted into a calendar format.
+- **Content Scripts**: These run only on the specific team details pages (`https://www.nyurban.com/team-details/*`) to identify game times and locations.
 
 ## 3. Third-Party Integration
 
