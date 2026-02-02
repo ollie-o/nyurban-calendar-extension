@@ -18,13 +18,19 @@
   "devDependencies": {
     "@crxjs/vite-plugin": "^2.0.0-beta.23",
     "@eslint/js": "^9.39.2",
+    "@ninoseki/eslint-plugin-neverthrow": "^0.0.1",
     "@types/chrome": "^0.0.254",
     "@types/jest": "^29.5.11",
     "@types/node": "^20.11.5",
+    "@types/react": "^19.2.10",
+    "@types/react-dom": "^19.2.3",
+    "@types/styled-components": "^5.1.36",
     "@typescript-eslint/eslint-plugin": "^8.54.0",
     "@typescript-eslint/parser": "^8.54.0",
+    "@vitejs/plugin-react": "^5.1.2",
     "eslint": "^9.39.2",
     "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-jest": "^29.12.1",
     "eslint-plugin-jsdoc": "^50.6.2",
     "eslint-plugin-unused-imports": "^4.3.0",
@@ -38,7 +44,10 @@
   },
   "dependencies": {
     "ics": "^3.7.2",
-    "neverthrow": "^8.2.0"
+    "neverthrow": "^8.2.0",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "styled-components": "^6.3.8"
   },
   "license": "MIT",
   "author": "Ollie",

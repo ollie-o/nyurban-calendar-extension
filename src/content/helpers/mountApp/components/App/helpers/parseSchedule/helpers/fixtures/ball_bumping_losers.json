@@ -1,0 +1,77 @@
+{
+  "teamName": "Ball Bumping Losers",
+  "games": [
+    {
+      "gameNumber": 1,
+      "teamName": "Ball Bumping Losers",
+      "opponent": "Limited Edition Release",
+      "date": "2026-07-16T21:15:00-04:00",
+      "location": "JJC-N",
+      "locationDetails": "John Jay College (Near Court) 59th Street & 10th Ave. JJC-M main gym, JJC-A auxiliary gym. (F= far court, N= near court) NO SPECTATORS!",
+      "duration": 60
+    },
+    {
+      "gameNumber": 2,
+      "teamName": "Ball Bumping Losers",
+      "opponent": "Pineapple Express",
+      "date": "2026-07-21T19:00:00-04:00",
+      "location": "LAG-N",
+      "locationDetails": "LaGuardia H.S. (Near Court) 65th St & Amsterdam No Bikes! NO SPECTATORS!",
+      "duration": 60
+    },
+    {
+      "gameNumber": 3,
+      "teamName": "Ball Bumping Losers",
+      "opponent": "Sandy Cheeks",
+      "date": "2026-07-31T19:00:00-04:00",
+      "location": "BRN-F",
+      "locationDetails": "Brandeis H.S. (Far Court) 84th bet Columbus & Amsterdam Players may not enter the school before 8 PM. No Spectators. No Children. No Bikes.",
+      "duration": 60
+    },
+    {
+      "gameNumber": 4,
+      "teamName": "Ball Bumping Losers",
+      "opponent": "OnlyMans",
+      "date": "2026-08-04T21:15:00-04:00",
+      "location": "BRN-N",
+      "locationDetails": "Brandeis H.S. (Near Court) 84th bet Columbus & Amsterdam Players may not enter the school before 8 PM. No Spectators. No Children. No Bikes.",
+      "duration": 60
+    },
+    {
+      "gameNumber": 5,
+      "teamName": "Ball Bumping Losers",
+      "opponent": "McFlurries",
+      "date": "2026-08-14T19:00:00-04:00",
+      "location": "BRN-F",
+      "locationDetails": "Brandeis H.S. (Far Court) 84th bet Columbus & Amsterdam Players may not enter the school before 8 PM. No Spectators. No Children. No Bikes.",
+      "duration": 60
+    },
+    {
+      "gameNumber": 6,
+      "teamName": "Ball Bumping Losers",
+      "opponent": "Elpha-baddies",
+      "date": "2026-08-20T19:00:00-04:00",
+      "location": "SJN",
+      "locationDetails": "St. John Nepomucene 406 E. 67th St (1st/York) Enter via middle set of gray doors on 67th b/w 1st & York. Do not arrive before 8pm, or 7pm on Wednesdays. NO SPECTATORS",
+      "duration": 60
+    },
+    {
+      "gameNumber": 7,
+      "teamName": "Ball Bumping Losers",
+      "opponent": "Team Solo Mid",
+      "date": "2026-08-25T21:15:00-04:00",
+      "location": "JJC-N",
+      "locationDetails": "John Jay College (Near Court) 59th Street & 10th Ave. JJC-M main gym, JJC-A auxiliary gym. (F= far court, N= near court) NO SPECTATORS!",
+      "duration": 60
+    },
+    {
+      "gameNumber": 8,
+      "teamName": "Ball Bumping Losers",
+      "opponent": "Pineapple Express",
+      "date": "2026-09-11T19:00:00-04:00",
+      "location": "JJC-N",
+      "locationDetails": "John Jay College (Near Court) 59th Street & 10th Ave. JJC-M main gym, JJC-A auxiliary gym. (F= far court, N= near court) NO SPECTATORS!",
+      "duration": 60
+    }
+  ]
+}

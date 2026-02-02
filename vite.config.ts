@@ -1,14 +1,15 @@
 import { defineConfig } from 'vite';
 import { crx } from '@crxjs/vite-plugin';
+import react from '@vitejs/plugin-react';
 import manifest from './src/manifest.json';
 
 export default defineConfig({
-  plugins: [crx({ manifest })],
+  plugins: [react(), crx({ manifest })],
   build: {
     outDir: 'dist',
     rollupOptions: {
       input: {
-        content: 'src/content/content.ts',
+        content: 'src/content/content.tsx',
       },
     },
   },

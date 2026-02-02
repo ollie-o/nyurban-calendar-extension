@@ -2,9 +2,16 @@ import js from '@eslint/js';
 import typescript from '@typescript-eslint/eslint-plugin';
 import typescriptParser from '@typescript-eslint/parser';
 import jest from 'eslint-plugin-jest';
+import importPlugin from 'eslint-plugin-import';
 import prettier from 'eslint-config-prettier';
 import unusedImports from 'eslint-plugin-unused-imports';
 import jsdoc from 'eslint-plugin-jsdoc';
+import neverthrow from '@ninoseki/eslint-plugin-neverthrow';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const tsconfigRootDir = path.dirname(fileURLToPath(import.meta.url));
+const eslintProgram = typescriptParser.createProgram(path.join(tsconfigRootDir, 'tsconfig.json'));
 
 export default [
   js.configs.recommended,
@@ -16,7 +23,8 @@ export default [
       parserOptions: {
         ecmaVersion: 'latest',
         sourceType: 'module',
-        project: './tsconfig.eslint.json',
+        programs: [eslintProgram],
+        tsconfigRootDir,
       },
       globals: {
         console: 'readonly',
@@ -34,8 +42,10 @@ export default [
     },
     plugins: {
       '@typescript-eslint': typescript,
+      import: importPlugin,
       'unused-imports': unusedImports,
       jsdoc: jsdoc,
+      neverthrow: neverthrow,
     },
     rules: {
       ...typescript.configs.recommended.rules,
@@ -73,9 +83,17 @@ export default [
       'no-lone-blocks': 'error',
 
       // Other rules.
-      '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/explicit-function-return-type': 'off',
-      '@typescript-eslint/no-non-null-assertion': 'warn',
+      '@typescript-eslint/no-non-null-assertion': 'error',
+      'no-restricted-properties': [
+        'error',
+        {
+          object: 'result',
+          property: 'match',
+          message: 'Prefer if (result.isErr()) { ... } over result.match().',
+        },
+      ],
       'no-console': 'off',
       'prefer-const': 'error',
       'no-var': 'error',
@@ -88,6 +106,7 @@ export default [
           allowUnboundThis: true,
         },
       ],
+      'arrow-body-style': ['error', 'as-needed'],
       'func-style': [
         'error',
         'expression',
@@ -105,6 +124,51 @@ export default [
           ignoreTemplateLiterals: true,
           ignoreRegExpLiterals: true,
           ignoreComments: false,
+        },
+      ],
+
+      // Max function length to encourage focused functions.
+      'max-lines-per-function': [
+        'error',
+        {
+          max: 50,
+          skipBlankLines: true,
+          skipComments: true,
+          IIFEs: true,
+        },
+      ],
+
+      // Max file length to keep files manageable.
+      'max-lines': [
+        'error',
+        {
+          max: 200,
+          skipBlankLines: true,
+          skipComments: true,
+        },
+      ],
+
+      // Require named exports to improve clarity and tree-shaking.
+      'import/no-default-export': 'off',
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: 'ExportDefaultDeclaration',
+          message: 'Prefer named exports for better clarity and tree-shaking support.',
+        },
+        {
+          // Flag named export lists with more than one specifier (i.e. multiple exports)
+          selector: 'ExportNamedDeclaration[specifiers.1]',
+          message:
+            'Prefer a single export per file. Split multiple exports into separate modules to improve clarity and tree-shaking.',
+        },
+        {
+          selector: 'TryStatement',
+          message: 'Avoid try/catch. Prefer neverthrow Result for error handling.',
+        },
+        {
+          selector: 'ThrowStatement',
+          message: 'Avoid throw. Prefer neverthrow Result for error handling.',
         },
       ],
 
@@ -129,7 +193,7 @@ export default [
     },
   },
   {
-    files: ['**/*.test.ts', '**/*.spec.ts', '**/tests/**/*.ts'],
+    files: ['**/*.test.ts', '**/*.spec.ts', '**/tests/**/*.ts', '**/setupTests.ts'],
     plugins: {
       jest,
     },
@@ -142,7 +206,7 @@ export default [
     },
     rules: {
       ...jest.configs.recommended.rules,
-      'jest/expect-expect': 'warn',
+      'jest/expect-expect': 'error',
       'jest/valid-title': 'off',
       'jest/no-conditional-expect': 'off',
     },
