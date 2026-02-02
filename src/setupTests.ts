@@ -1,9 +1,14 @@
 import { TextEncoder, TextDecoder } from 'util';
 
-// Add TextEncoder and TextDecoder to global scope for JSDOM.
-global.TextEncoder = TextEncoder;
-global.TextDecoder = TextDecoder as typeof global.TextDecoder;
+/**
+ * Sets up the test environment with necessary globals and mocks.
+ */
+const setupTests = (): void => {
+  global.TextEncoder = TextEncoder;
+  global.TextDecoder = TextDecoder as typeof global.TextDecoder;
 
-// Mock URL.createObjectURL and revokeObjectURL for JSDOM.
-global.URL.createObjectURL = jest.fn(() => 'blob:mock-url');
-global.URL.revokeObjectURL = jest.fn();
+  global.URL.createObjectURL = jest.fn(() => 'blob:mock-url');
+  global.URL.revokeObjectURL = jest.fn();
+};
+
+setupTests();

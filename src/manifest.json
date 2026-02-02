@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "NY Urban Calendar",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Automate adding NY Urban league games to Google Calendar",
   "host_permissions": ["https://www.nyurban.com/team-details/*"],
   "content_scripts": [

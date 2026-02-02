@@ -1,8 +1,14 @@
-import { mountApp } from '../components/root';
+import { mountApp } from './helpers/mountApp/mountApp';
 
-// Mount app when DOM is ready.
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', mountApp);
-} else {
-  mountApp();
-}
+/**
+ * Entry point that mounts the app when the DOM is ready.
+ */
+const content = (): void => {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', mountApp);
+  } else {
+    mountApp();
+  }
+};
+
+content();

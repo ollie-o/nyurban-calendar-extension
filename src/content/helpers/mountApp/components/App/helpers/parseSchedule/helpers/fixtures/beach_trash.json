@@ -1,0 +1,86 @@
+{
+  "teamName": "BEACH TRASH VOL. 2",
+  "games": [
+    {
+      "gameNumber": 1,
+      "teamName": "BEACH TRASH VOL. 2",
+      "opponent": "Built Assets",
+      "date": "2026-01-14T18:30:00-05:00",
+      "location": "D2P",
+      "locationDetails": "District 2 Pre K 355 E. 76th bet 1st & 2nd Do not arrive at school before 6:15 *Special Note* There is only a 5 minute grace period before calling a forfeit at D2P. Please be on time! . Bring ID. Take stairs to the 6th floor gym. No Spectators.",
+      "duration": 60
+    },
+    {
+      "gameNumber": 2,
+      "teamName": "BEACH TRASH VOL. 2",
+      "opponent": "Tyrannosaurus Sets",
+      "date": "2026-01-29T19:00:00-05:00",
+      "location": "CHL",
+      "locationDetails": "Chelsea School 281 9th Ave.(bet 26th & 27th)",
+      "duration": 60
+    },
+    {
+      "gameNumber": 3,
+      "teamName": "BEACH TRASH VOL. 2",
+      "opponent": "Unprotected Sets",
+      "date": "2026-02-05T21:15:00-05:00",
+      "location": "LAG-F",
+      "locationDetails": "LaGuardia H.S. (Far Court) 65th St & Amsterdam No Bikes! NO SPECTATORS!",
+      "duration": 60
+    },
+    {
+      "gameNumber": 4,
+      "teamName": "BEACH TRASH VOL. 2",
+      "opponent": "NYC Seniors",
+      "date": "2026-02-12T21:10:00-05:00",
+      "location": "CHL",
+      "locationDetails": "Chelsea School 281 9th Ave.(bet 26th & 27th)",
+      "duration": 60
+    },
+    {
+      "gameNumber": 5,
+      "teamName": "BEACH TRASH VOL. 2",
+      "opponent": "fka Dreyfus",
+      "date": "2026-02-24T20:10:00-05:00",
+      "location": "LAG-F",
+      "locationDetails": "LaGuardia H.S. (Far Court) 65th St & Amsterdam No Bikes! NO SPECTATORS!",
+      "duration": 60
+    },
+    {
+      "gameNumber": 6,
+      "teamName": "BEACH TRASH VOL. 2",
+      "opponent": "Funky Sets",
+      "date": "2026-03-05T19:40:00-05:00",
+      "location": "D2P",
+      "locationDetails": "District 2 Pre K 355 E. 76th bet 1st & 2nd Do not arrive at school before 6:15 *Special Note* There is only a 5 minute grace period before calling a forfeit at D2P. Please be on time! . Bring ID. Take stairs to the 6th floor gym. No Spectators.",
+      "duration": 60
+    },
+    {
+      "gameNumber": 7,
+      "teamName": "BEACH TRASH VOL. 2",
+      "opponent": "Blockbusters",
+      "date": "2026-03-11T20:10:00-04:00",
+      "location": "BRN-F",
+      "locationDetails": "Brandeis H.S. (Far Court) 84th bet Columbus & Amsterdam Players may not enter the school before 8 PM. No Spectators. No Children. No Bikes.",
+      "duration": 60
+    },
+    {
+      "gameNumber": 8,
+      "teamName": "BEACH TRASH VOL. 2",
+      "opponent": "Googley 3",
+      "date": "2026-03-17T20:10:00-04:00",
+      "location": "LAG-F",
+      "locationDetails": "LaGuardia H.S. (Far Court) 65th St & Amsterdam No Bikes! NO SPECTATORS!",
+      "duration": 60
+    },
+    {
+      "gameNumber": 9,
+      "teamName": "BEACH TRASH VOL. 2",
+      "opponent": "Your Neighborhood Spikers",
+      "date": "2026-03-27T20:10:00-04:00",
+      "location": "JJC-A",
+      "locationDetails": "John Jay College (Auxillary) 59th Street & 10th Ave. JJC-M main gym, JJC-A auxiliary gym. (F= far court, N= near court) NO SPECTATORS!",
+      "duration": 60
+    }
+  ]
+}

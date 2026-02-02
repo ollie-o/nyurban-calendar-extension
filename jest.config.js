@@ -4,7 +4,7 @@ export default {
   roots: ['<rootDir>/src'],
   testMatch: ['**/__tests__/**/*.ts', '**/?(*.)+(spec|test).ts'],
   transform: {
-    '^.+\\.ts$': [
+    '^.+\\.(ts|tsx)$': [
       'ts-jest',
       {
         tsconfig: {
@@ -13,7 +13,7 @@ export default {
         },
       },
     ],
-    '^.+\\.js$': [
+    '^.+\\.(js|jsx)$': [
       'ts-jest',
       {
         tsconfig: {
@@ -25,8 +25,8 @@ export default {
     ],
   },
   transformIgnorePatterns: ['node_modules/(?!(nanoid|ics)/)'],
-  moduleFileExtensions: ['ts', 'js', 'json', 'node'],
-  collectCoverageFrom: ['src/**/*.ts', '!src/**/*.d.ts'],
+  moduleFileExtensions: ['ts', 'tsx', 'js', 'json', 'node'],
+  collectCoverageFrom: ['src/**/*.{ts,tsx}', '!src/**/*.d.ts'],
   coverageDirectory: 'coverage',
   verbose: true,
   setupFiles: ['<rootDir>/src/setupTests.ts'],

@@ -1,0 +1,86 @@
+{
+  "teamName": "Ollie Vollies",
+  "games": [
+    {
+      "gameNumber": 1,
+      "teamName": "Ollie Vollies",
+      "opponent": "Sloppy Sets",
+      "date": "2026-01-13T18:30:00-05:00",
+      "location": "AOS",
+      "locationDetails": "Adolph Ochs School 440 West 53rd St btw 9th&10th Gym is in the basement. NO spectators",
+      "duration": 60
+    },
+    {
+      "gameNumber": 2,
+      "teamName": "Ollie Vollies",
+      "opponent": "Grass-roots Effort",
+      "date": "2026-01-28T18:30:00-05:00",
+      "location": "D2P",
+      "locationDetails": "District 2 Pre K 355 E. 76th bet 1st & 2nd Do not arrive at school before 6:15 *Special Note* There is only a 5 minute grace period before calling a forfeit at D2P. Please be on time! . Bring ID. Take stairs to the 6th floor gym. No Spectators.",
+      "duration": 60
+    },
+    {
+      "gameNumber": 3,
+      "teamName": "Ollie Vollies",
+      "opponent": "Googley 1",
+      "date": "2026-02-04T20:10:00-05:00",
+      "location": "BRN-N",
+      "locationDetails": "Brandeis H.S. (Near Court) 84th bet Columbus & Amsterdam Players may not enter the school before 8 PM. No Spectators. No Children. No Bikes.",
+      "duration": 60
+    },
+    {
+      "gameNumber": 4,
+      "teamName": "Ollie Vollies",
+      "opponent": "Serves you Right",
+      "date": "2026-02-19T21:10:00-05:00",
+      "location": "CHL",
+      "locationDetails": "Chelsea School 281 9th Ave.(bet 26th & 27th)",
+      "duration": 60
+    },
+    {
+      "gameNumber": 5,
+      "teamName": "Ollie Vollies",
+      "opponent": "NPH",
+      "date": "2026-02-25T19:00:00-05:00",
+      "location": "LAG-F",
+      "locationDetails": "LaGuardia H.S. (Far Court) 65th St & Amsterdam No Bikes! NO SPECTATORS!",
+      "duration": 60
+    },
+    {
+      "gameNumber": 6,
+      "teamName": "Ollie Vollies",
+      "opponent": "Overcooked",
+      "date": "2026-03-04T19:00:00-05:00",
+      "location": "CHL",
+      "locationDetails": "Chelsea School 281 9th Ave.(bet 26th & 27th)",
+      "duration": 60
+    },
+    {
+      "gameNumber": 7,
+      "teamName": "Ollie Vollies",
+      "opponent": "INTERVOL",
+      "date": "2026-03-19T20:10:00-04:00",
+      "location": "BRN-N",
+      "locationDetails": "Brandeis H.S. (Near Court) 84th bet Columbus & Amsterdam Players may not enter the school before 8 PM. No Spectators. No Children. No Bikes.",
+      "duration": 60
+    },
+    {
+      "gameNumber": 8,
+      "teamName": "Ollie Vollies",
+      "opponent": "Volley Llamas",
+      "date": "2026-03-27T21:15:00-04:00",
+      "location": "JJC-A",
+      "locationDetails": "John Jay College (Auxillary) 59th Street & 10th Ave. JJC-M main gym, JJC-A auxiliary gym. (F= far court, N= near court) NO SPECTATORS!",
+      "duration": 60
+    },
+    {
+      "gameNumber": 9,
+      "teamName": "Ollie Vollies",
+      "opponent": "Fourmidable",
+      "date": "2026-03-31T21:15:00-04:00",
+      "location": "LAG-N",
+      "locationDetails": "LaGuardia H.S. (Near Court) 65th St & Amsterdam No Bikes! NO SPECTATORS!",
+      "duration": 60
+    }
+  ]
+}
