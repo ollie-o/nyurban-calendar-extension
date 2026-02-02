@@ -1,4 +1,5 @@
 import { JSDOM } from 'jsdom';
+
 import { extractTeamName } from './extractTeamName';
 
 describe('extractTeamName', () => {

@@ -1,4 +1,5 @@
 import path from 'path';
+
 import { collectFiles } from './helpers/collectFiles/collectFiles';
 import { isTypeOnlyFile } from './helpers/isTypeOnlyFile/isTypeOnlyFile';
 

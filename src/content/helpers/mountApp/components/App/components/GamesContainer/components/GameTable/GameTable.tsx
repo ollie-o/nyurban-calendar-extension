@@ -1,8 +1,19 @@
 import React from 'react';
+
 import { Game } from '../../../../shared/types/Game/Game';
+
+import { Checkbox } from './components/Checkbox/Checkbox';
+import { DateTimeDiv } from './components/DateTimeDiv/DateTimeDiv';
 import { GameTableContainer } from './components/GameTableContainer/GameTableContainer';
 import { SelectAllLabel } from './components/SelectAllLabel/SelectAllLabel';
-import { Checkbox } from './components/Checkbox/Checkbox';
+import { SelectAllText } from './components/SelectAllText/SelectAllText';
+import { StyledTable } from './components/StyledTable/StyledTable';
+import { TableBody } from './components/TableBody/TableBody';
+import { TableCell } from './components/TableCell/TableCell';
+import { TableHeader } from './components/TableHeader/TableHeader';
+import { TableHeaderCell } from './components/TableHeaderCell/TableHeaderCell';
+import { TableHeaderRow } from './components/TableHeaderRow/TableHeaderRow';
+import { TableRow } from './components/TableRow/TableRow';
 
 /**
  * Formats an ISO date string to a human-readable date.
@@ -27,15 +38,6 @@ const formatTime = (dateStr: string): string => {
   const hour12 = hour % 12 || 12;
   return `${hour12}:${minute.toString().padStart(2, '0')} ${ampm}`;
 };
-import { SelectAllText } from './components/SelectAllText/SelectAllText';
-import { StyledTable } from './components/StyledTable/StyledTable';
-import { TableHeader } from './components/TableHeader/TableHeader';
-import { TableHeaderRow } from './components/TableHeaderRow/TableHeaderRow';
-import { TableHeaderCell } from './components/TableHeaderCell/TableHeaderCell';
-import { TableBody } from './components/TableBody/TableBody';
-import { TableRow } from './components/TableRow/TableRow';
-import { TableCell } from './components/TableCell/TableCell';
-import { DateTimeDiv } from './components/DateTimeDiv/DateTimeDiv';
 
 /**
  * Props for the GameTable component.

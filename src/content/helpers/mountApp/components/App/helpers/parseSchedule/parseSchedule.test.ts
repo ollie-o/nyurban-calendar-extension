@@ -1,8 +1,11 @@
-import { parseSchedule } from './parseSchedule';
 import * as fs from 'fs';
 import * as path from 'path';
+
 import { JSDOM } from 'jsdom';
+
 import { Game } from '../../shared/types/Game/Game';
+
+import { parseSchedule } from './parseSchedule';
 
 /**
  * Helper to load an HTML fixture file

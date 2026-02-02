@@ -150,6 +150,20 @@ export default [
 
       // Require named exports to improve clarity and tree-shaking.
       'import/no-default-export': 'off',
+
+      // Import ordering rule.
+      'import/order': [
+        'error',
+        {
+          groups: ['builtin', 'external', 'internal', 'parent', 'sibling', 'index'],
+          'newlines-between': 'always',
+          alphabetize: {
+            order: 'asc',
+            caseInsensitive: true,
+          },
+        },
+      ],
+
       'no-restricted-syntax': [
         'error',
         {

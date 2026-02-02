@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+
 import { VALID_EXTENSIONS } from '../../../../../shared/constants/constants';
 
 /**

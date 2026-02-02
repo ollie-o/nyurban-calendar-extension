@@ -1,7 +1,9 @@
 import path from 'path';
+
 import { collectAllFiles } from '../shared/collectAllFiles/collectAllFiles';
-import { validateTestFileImports } from './helpers/validateTestFileImports/validateTestFileImports';
 import { TEST_SUFFIXES } from '../shared/constants/constants';
+
+import { validateTestFileImports } from './helpers/validateTestFileImports/validateTestFileImports';
 
 /**
  * Validates that all test files only import from their same directory.

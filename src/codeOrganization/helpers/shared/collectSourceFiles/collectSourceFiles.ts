@@ -1,7 +1,8 @@
 import fs from 'fs';
 import path from 'path';
-import { VALID_EXTENSIONS } from '../constants/constants';
+
 import { EXCLUDED_SUFFIXES } from '../constants/constants';
+import { VALID_EXTENSIONS } from '../constants/constants';
 
 /**
  * Collects all TypeScript source files excluding test files and declaration files.

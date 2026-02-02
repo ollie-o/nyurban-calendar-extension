@@ -1,6 +1,8 @@
 import fs from 'fs';
 import path from 'path';
+
 import { ALLOWED_CHILD_DIRS } from '../../../shared/constants/constants';
+
 import { hasMainSourceFile } from './helpers/hasMainSourceFile/hasMainSourceFile';
 
 /**

@@ -1,10 +1,12 @@
 import React from 'react';
+
 import { Game } from '../../shared/types/Game/Game';
-import { GameTable } from './components/GameTable/GameTable';
+
+import { ButtonContainer } from './components/ButtonContainer/ButtonContainer';
 import { ContainerDiv } from './components/ContainerDiv/ContainerDiv';
 import { ContainerTitle } from './components/ContainerTitle/ContainerTitle';
-import { ButtonContainer } from './components/ButtonContainer/ButtonContainer';
 import { DownloadButton } from './components/DownloadButton/DownloadButton';
+import { GameTable } from './components/GameTable/GameTable';
 import { generateICS } from './helpers/generateICS/generateICS';
 import { handleDownload } from './helpers/handleDownload/handleDownload';
 

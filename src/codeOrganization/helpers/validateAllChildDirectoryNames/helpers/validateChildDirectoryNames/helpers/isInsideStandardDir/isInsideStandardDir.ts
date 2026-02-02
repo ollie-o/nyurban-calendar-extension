@@ -1,4 +1,5 @@
 import path from 'path';
+
 import { ALLOWED_CHILD_DIRS } from '../../../../../shared/constants/constants';
 
 /**
